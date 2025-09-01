@@ -1,99 +1,378 @@
-/* Stili personalizzati per l'applicazione Esami */
-:root {
-    --primary-color: #0d6efd;
-    --secondary-color: #6c757d;
-    --success-color: #198754;
-    --danger-color: #dc3545;
-    --warning-color: #ffc107;
-    --info-color: #0dcaf0;
-}
+/* File: wwwroot/css/site.css */
+/* Stili personalizzati per replicare l'aspetto del WinForms */
+
+/* ==================== STILI GENERALI ==================== */
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
-    min-height: 100vh;
 }
 
-/* Miglioramenti per le select multiple */
-select[size] option {
-    padding: 8px 12px;
-    border-bottom: 1px solid #eee;
+.container-fluid {
+    max-width: 1500px;
+    margin: 0 auto;
 }
 
-    select[size] option:last-child {
-        border-bottom: none;
-    }
+/* ==================== PANNELLI PRINCIPALI ==================== */
 
-/* Effetti hover e focus migliorati */
-.btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+/* Replica l'aspetto delle ListBox del WinForms */
+.form-select[size] {
+    border: 2px solid #dee2e6 !important;
+    border-radius: 4px !important;
+    font-size: 16px !important;
+    font-weight: 500;
+    background-color: #f8f9fa !important;
     transition: all 0.2s ease;
 }
 
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    .form-select[size]:focus {
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+        outline: none !important;
+    }
+
+    .form-select[size] option {
+        padding: 8px 12px;
+        font-size: 16px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+        .form-select[size] option:hover {
+            background-color: #e3f2fd !important;
+        }
+
+        .form-select[size] option:checked {
+            background-color: #0d6efd !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+/* ==================== HEADERS PANNELLI ==================== */
+
+.card-header h4 {
+    color: #495057;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    margin: 0;
+    padding: 10px 0;
+}
+
+/* ==================== PULSANTI ==================== */
+
+/* Pulsante conferma - stile WinForms */
+#btnConfermaEsame {
+    background: linear-gradient(145deg, #28a745, #20c997);
+    border: 2px solid #1e7e34;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     transition: all 0.3s ease;
 }
 
-/* Animazioni per le tabelle */
-.table tbody tr {
+    #btnConfermaEsame:hover {
+        background: linear-gradient(145deg, #20c997, #28a745);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+/* Pulsanti di controllo tabella */
+#btnSpostaSu, #btnSpostaGiu, #btnEliminaRiga {
+    font-weight: bold;
+    min-width: 40px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#btnEliminaRiga {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+    #btnEliminaRiga:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+
+/* Pulsanti ricerca */
+#btnCerca {
+    background: linear-gradient(145deg, #007bff, #0056b3);
+    border: 2px solid #004085;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+#btnVediTutti {
+    background: linear-gradient(145deg, #6c757d, #545b62);
+    border: 2px solid #495057;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Pulsante Admin */
+.btn-warning.btn-lg {
+    background: linear-gradient(145deg, #ffc107, #e0a800);
+    border: 2px solid #d39e00;
+    color: #212529 !important;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+}
+
+/* ==================== TABELLA ESAMI SELEZIONATI ==================== */
+
+#tabellaEsamiSelezionati {
+    font-size: 15px;
+}
+
+    #tabellaEsamiSelezionati thead th {
+        background-color: #343a40 !important;
+        color: white !important;
+        font-weight: bold !important;
+        font-size: 16px;
+        text-align: center;
+        padding: 12px 8px;
+        border: 1px solid #495057;
+    }
+
+    #tabellaEsamiSelezionati tbody tr {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        #tabellaEsamiSelezionati tbody tr:hover {
+            background-color: #e3f2fd !important;
+            transform: scale(1.01);
+        }
+
+        #tabellaEsamiSelezionati tbody tr.table-active {
+            background-color: #0d6efd !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+    #tabellaEsamiSelezionati tbody td {
+        padding: 10px 8px;
+        vertical-align: middle;
+        border: 1px solid #dee2e6;
+    }
+
+/* ==================== PANNELLO RICERCA ==================== */
+
+.card.border-primary {
+    border-width: 2px !important;
+}
+
+.card-header.bg-primary {
+    background: linear-gradient(145deg, #007bff, #0056b3) !important;
+}
+
+#testoRicerca {
+    font-size: 16px;
+    padding: 10px 15px;
+    border: 2px solid #ced4da;
     transition: all 0.2s ease;
 }
 
-    .table tbody tr:hover {
-        transform: scale(1.01);
+    #testoRicerca:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
     }
 
-/* Responsive improvements */
-@media (max-width: 992px) {
-    .card-body {
-        padding: 1rem 0.5rem;
+#campoRicerca {
+    font-size: 14px;
+    font-weight: 500;
+    border: 2px solid #ced4da;
+}
+
+/* ==================== AMMINISTRAZIONE ==================== */
+
+/* Tabelle admin */
+.table-responsive {
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+}
+
+.table-sm th {
+    background-color: #f8f9fa !important;
+    font-weight: bold;
+    font-size: 14px;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table-sm tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+    .table-sm tbody tr:hover {
+        background-color: #e3f2fd !important;
     }
 
-    select[size] {
+    .table-sm tbody tr.table-active {
+        background-color: #0d6efd !important;
+        color: white !important;
+        font-weight: bold;
+    }
+
+/* Pulsanti +/- admin */
+.btn-group .btn {
+    font-size: 20px;
+    font-weight: bold;
+    min-width: 50px;
+}
+
+.btn-success {
+    background-color: #28a745 !important;
+    border-color: #1e7e34 !important;
+}
+
+.btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #c82333 !important;
+}
+
+/* ==================== LOADING ==================== */
+
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+}
+
+.loading-spinner {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+    .loading-spinner .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+
+/* ==================== CARDS ==================== */
+
+.card {
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+    .card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        transform: translateY(-1px);
+    }
+
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.shadow {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ==================== MODAL ==================== */
+
+.modal-content {
+    border: 2px solid #dee2e6;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 2px solid #dee2e6;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+    .form-select[size] {
         height: 300px !important;
-        font-size: 14px;
+        font-size: 14px !important;
+    }
+
+    #btnConfermaEsame {
+        font-size: 16px !important;
+        padding: 15px !important;
+    }
+
+    .card-header h4 {
+        font-size: 18px;
+    }
+
+    .btn-group .btn {
+        font-size: 16px;
+        min-width: 35px;
     }
 }
 
 @media (max-width: 576px) {
     .container-fluid {
-        padding: 0.25rem;
+        padding: 10px;
+    }
+
+    .form-select[size] {
+        height: 250px !important;
     }
 
     .btn-lg {
-        font-size: 0.9rem;
-        padding: 0.4rem 0.8rem;
-    }
-
-    .card-header h4, .card-header h5 {
-        font-size: 1.1rem;
+        font-size: 14px !important;
+        padding: 12px !important;
     }
 }
 
-/* Loading states */
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
+/* ==================== ANIMAZIONI ==================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* Form validation styles */
-.is-invalid {
-    border-color: var(--danger-color) !important;
+.card {
+    animation: fadeIn 0.3s ease-in-out;
 }
 
-.invalid-feedback {
-    display: block;
-    color: var(--danger-color);
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
+/* ==================== ACCESSIBILITÀ ==================== */
+
+.form-select[size]:focus-visible {
+    outline: 3px solid #80bdff;
+    outline-offset: 2px;
 }
 
-/* Success/Error messages */
-.alert-dismissible .btn-close {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+.btn:focus-visible {
+    outline: 3px solid #80bdff;
+    outline-offset: 2px;
+}
+
+/* ==================== UTILITIES ==================== */
+
+.text-shadow {
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.border-thick {
+    border-width: 2px !important;
+}
+
+.fw-bold {
+    font-weight: 700 !important;
 }

@@ -8,35 +8,69 @@ namespace ProgettoTestWeb.Controllers
     public class HomeController : Controller
     {
         private readonly IEsameService _esameService;
+        private readonly IConfiguration _configuration;
 
-        public HomeController(IEsameService esameService)
+        public HomeController(IEsameService esameService, IConfiguration configuration)
         {
             _esameService = esameService;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> Index()
         {
-            var viewModel = new MainViewModel
+            try
             {
-                Ambulatori = await _esameService.GetAmbulatoriAsync()
-            };
+                // Carica configurazione predefinita
+                ConfigLoader.CaricaConfigurazione(_configuration);
 
-            // Applica configurazioni predefinite se presenti
-            ApplicaConfigurazioniPredefinite(viewModel);
+                var viewModel = new MainViewModel();
+                await CaricaDatiIniziali(viewModel);
 
-            return View(viewModel);
+                // Applica configurazioni predefinite
+                ApplicaConfigurazioniPredefinite(viewModel);
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                var viewModel = new MainViewModel
+                {
+                    MessaggioErrore = $"Errore durante il caricamento: {ex.Message}"
+                };
+                return View(viewModel);
+            }
+        }
+
+        private async Task CaricaDatiIniziali(MainViewModel viewModel)
+        {
+            viewModel.Ambulatori = await _esameService.GetAmbulatoriAsync();
+
+            // Se ci sono ambulatori, seleziona il primo e carica le parti del corpo
+            if (viewModel.Ambulatori.Any())
+            {
+                viewModel.AmbulatorioSelezionato = viewModel.Ambulatori.First();
+                viewModel.PartiCorpo = await _esameService.GetPartiCorpoPerAmbulatorioAsync(viewModel.AmbulatorioSelezionato);
+
+                // Se ci sono parti del corpo, seleziona la prima e carica gli esami
+                if (viewModel.PartiCorpo.Any())
+                {
+                    viewModel.ParteCorpoSelezionata = viewModel.PartiCorpo.First();
+                    viewModel.Esami = await _esameService.GetEsamiPerAmbulatorioEParteAsync(
+                        viewModel.AmbulatorioSelezionato,
+                        viewModel.ParteCorpoSelezionata);
+                }
+            }
         }
 
         private void ApplicaConfigurazioniPredefinite(MainViewModel viewModel)
         {
+            // Imposta il tipo di ricerca predefinito
             if (!string.IsNullOrEmpty(Predefiniti_Ricerca.TipoRicercaPredefinito))
             {
-                if (viewModel.CampiRicercaDisponibili.Contains(Predefiniti_Ricerca.TipoRicercaPredefinito))
-                {
-                    viewModel.CampoRicerca = Predefiniti_Ricerca.TipoRicercaPredefinito;
-                }
+                viewModel.CampoRicerca = Predefiniti_Ricerca.TipoRicercaPredefinito;
             }
 
+            // Imposta la ricerca predefinita
             if (!string.IsNullOrEmpty(Predefiniti_Ricerca.RicercaPredefinita))
             {
                 viewModel.TestoRicerca = Predefiniti_Ricerca.RicercaPredefinita;
@@ -44,8 +78,7 @@ namespace ProgettoTestWeb.Controllers
             }
         }
 
-        // API endpoints per AJAX calls
-        [HttpGet]
+        [HttpPost]
         public async Task<JsonResult> GetPartiCorpo(string ambulatorio)
         {
             try
@@ -59,7 +92,7 @@ namespace ProgettoTestWeb.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<JsonResult> GetEsami(string ambulatorio, string parteCorpo)
         {
             try
@@ -74,16 +107,16 @@ namespace ProgettoTestWeb.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> RicercaEsami([FromBody] RicercaRequest request)
+        public async Task<JsonResult> RicercaEsami(string filtro, string campo)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(request.Filtro))
+                if (string.IsNullOrWhiteSpace(filtro))
                 {
-                    return Json(new { success = false, message = "Inserire un testo di ricerca." });
+                    return Json(new { success = false, message = "Inserire un testo di ricerca" });
                 }
 
-                var esami = await _esameService.RicercaEsamiAsync(request.Filtro, request.Campo);
+                var esami = await _esameService.RicercaEsamiAsync(filtro, campo);
                 return Json(new { success = true, data = esami });
             }
             catch (Exception ex)
@@ -93,71 +126,39 @@ namespace ProgettoTestWeb.Controllers
         }
 
         [HttpPost]
-        public JsonResult AggiungiEsameSelezionato([FromBody] EsameSelezionatoRequest request)
+        public async Task<JsonResult> GetDatiCompleti()
         {
             try
             {
-                // In una vera applicazione, questo andrebbe salvato in sessione o database
-                // Per ora restituiamo solo successo
-                return Json(new { success = true, message = "Esame aggiunto alla selezione." });
+                var ambulatori = await _esameService.GetAmbulatoriAsync();
+                var parti = new List<string>();
+                var esami = new List<Esame>();
+
+                if (ambulatori.Any())
+                {
+                    parti = await _esameService.GetPartiCorpoPerAmbulatorioAsync(ambulatori.First());
+
+                    if (parti.Any())
+                    {
+                        esami = await _esameService.GetEsamiPerAmbulatorioEParteAsync(ambulatori.First(), parti.First());
+                    }
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        ambulatori = ambulatori,
+                        parti = parti,
+                        esami = esami
+                    }
+                });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = ex.Message });
             }
         }
-
-        [HttpPost]
-        public JsonResult RimuoviEsameSelezionato([FromBody] RimuoviEsameRequest request)
-        {
-            try
-            {
-                // Logica per rimuovere dalla sessione/database
-                return Json(new { success = true, message = "Esame rimosso dalla selezione." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-
-        [HttpPost]
-        public JsonResult SpostaEsame([FromBody] SpostaEsameRequest request)
-        {
-            try
-            {
-                // Logica per spostare su/giù nella lista
-                return Json(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
-    }
-
-    // DTOs per le richieste AJAX
-    public class RicercaRequest
-    {
-        public string Filtro { get; set; } = string.Empty;
-        public string Campo { get; set; } = string.Empty;
-    }
-
-    public class EsameSelezionatoRequest
-    {
-        public int EsameId { get; set; }
-        public string Ambulatorio { get; set; } = string.Empty;
-        public string ParteCorpo { get; set; } = string.Empty;
-    }
-
-    public class RimuoviEsameRequest
-    {
-        public int Index { get; set; }
-    }
-
-    public class SpostaEsameRequest
-    {
-        public int FromIndex { get; set; }
-        public int ToIndex { get; set; }
     }
 }

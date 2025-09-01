@@ -27,10 +27,10 @@ namespace ProgettoTestWeb.Models
         [Display(Name = "Ambulatorio")]
         public string Ambulatorio { get; set; } = string.Empty;
 
-        // Per visualizzazione nelle ListBox/Select
+        // Per visualizzazione nelle ListBox/Select - come nel WinForms
         public override string ToString()
         {
-            return $"{CodiceMinisteriale} - {DescrizioneEsame}";
+            return DescrizioneEsame; // Serve per far apparire il nome nell'elenco, come nel WinForms
         }
     }
 
@@ -58,7 +58,8 @@ namespace ProgettoTestWeb.Models
         public override string ToString() => NomeParte;
     }
 
-    // ViewModels per le viste
+    // ==================== VIEW MODELS ====================
+
     public class MainViewModel
     {
         public List<string> Ambulatori { get; set; } = new();
@@ -108,26 +109,47 @@ namespace ProgettoTestWeb.Models
 
     public class NuovoEsameDto
     {
-        [Required]
-        [MaxLength(10)]
+        [Required(ErrorMessage = "Il codice ministeriale è richiesto")]
+        [MaxLength(10, ErrorMessage = "Il codice ministeriale non può superare i 10 caratteri")]
+        [Display(Name = "Codice Ministeriale")]
         public string CodiceMinisteriale { get; set; } = string.Empty;
 
-        [Required]
-        [MaxLength(10)]
+        [Required(ErrorMessage = "Il codice interno è richiesto")]
+        [MaxLength(10, ErrorMessage = "Il codice interno non può superare i 10 caratteri")]
+        [Display(Name = "Codice Interno")]
         public string CodiceInterno { get; set; } = string.Empty;
 
-        [Required]
-        [MaxLength(100)]
+        [Required(ErrorMessage = "La descrizione è richiesta")]
+        [MaxLength(100, ErrorMessage = "La descrizione non può superare i 100 caratteri")]
+        [Display(Name = "Descrizione Esame")]
         public string DescrizioneEsame { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "Selezionare una parte del corpo")]
+        [Display(Name = "Parte del Corpo")]
         public string ParteCorpo { get; set; } = string.Empty;
 
-        [Required]
+        [Required(ErrorMessage = "Selezionare almeno un ambulatorio")]
         public List<string> AmbulatoriSelezionati { get; set; } = new();
 
         // Liste per le dropdown
         public List<string> PartiCorpoDisponibili { get; set; } = new();
         public List<string> AmbulatoriDisponibili { get; set; } = new();
+    }
+
+    // ==================== DTOs per AJAX ====================
+
+    public class AggiungiAmbulatorioRequest
+    {
+        public string Nome { get; set; } = string.Empty;
+    }
+
+    public class AggiungiParteCorpoRequest
+    {
+        public string Nome { get; set; } = string.Empty;
+    }
+
+    public class EliminaRequest
+    {
+        public int Id { get; set; }
     }
 }

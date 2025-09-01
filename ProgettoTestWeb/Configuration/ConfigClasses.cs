@@ -1,37 +1,45 @@
-﻿namespace ProgettoTestWeb.Configuration
+﻿// File: ProgettoTest/Config/ConfigClasses.cs
+// Classi di configurazione statiche per il caricamento dal file INI
+
+namespace ProgettoTest.ConfigPredefiniti
 {
-    // Corrisponde alla sezione "Ricerca" in appsettings.json
+    // Sezione [Database] del file INI
+    public static class Predefiniti_Database
+    {
+        public static string Server { get; set; } = "(localdb)\\MSSQLLocalDB";
+        public static string DatabaseName { get; set; } = "EsamiDB";
+        public static bool IntegratedSecurity { get; set; } = true;
+        public static string UserId { get; set; } = "";
+        public static string Password { get; set; } = "";
+        public static int TimeoutConnessione { get; set; } = 30;
+    }
+
+    // Sezione [Ricerca] del file INI
     public static class Predefiniti_Ricerca
     {
         public static string RicercaPredefinita { get; set; } = "";
         public static string TipoRicercaPredefinito { get; set; } = "Descrizione Esame";
     }
 
-    // Corrisponde alla sezione "Database" in appsettings.json
-    public static class Predefiniti_Database
+    // Sezione [StampaServer] del file INI - esempio delle specifiche
+    public static class Predefiniti_StampaServer
     {
-        public static string Server { get; set; } = "";
-        public static string DatabaseName { get; set; } = "";
-        public static bool IntegratedSecurity { get; set; } = true;
-        public static string UserId { get; set; } = "";
-        public static string Password { get; set; } = "";
-        public static int TimeoutConnessione { get; set; } = 15;
+        public static int StampaServerEnabled { get; set; } = 0;
+        public static int UpdateInterval { get; set; } = 3;
     }
 
-    // Classi per binding dalla configurazione
-    public class RicercaConfig
+    // Sezione [Archivio] del file INI - esempio delle specifiche
+    public static class Predefiniti_Archivio
     {
-        public string RicercaPredefinita { get; set; } = "";
-        public string TipoRicercaPredefinito { get; set; } = "Descrizione Esame";
+        public static string ArchivioPath { get; set; } = "";
+        public static string CatalogName { get; set; } = "";
+        public static int MaxStorageDaysCheckInterval { get; set; } = 10;
     }
 
-    public class DatabaseConfig
+    // Sezione [Dicom] del file INI - esempio delle specifiche
+    public static class Predefiniti_Dicom
     {
-        public string Server { get; set; } = "";
-        public string DatabaseName { get; set; } = "";
-        public bool IntegratedSecurity { get; set; } = true;
-        public string UserId { get; set; } = "";
-        public string Password { get; set; } = "";
-        public int TimeoutConnessione { get; set; } = 15;
+        public static string DCMColPrintProcessServerAdditionalOptions { get; set; } = "";
+        public static string DCMBNPrintProcessServerAdditionalOptions { get; set; } = "";
     }
 }
