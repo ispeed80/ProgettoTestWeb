@@ -1,0 +1,99 @@
+/* Stili personalizzati per l'applicazione Esami */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* Miglioramenti per le select multiple */
+select[size] option {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+}
+
+    select[size] option:last-child {
+        border-bottom: none;
+    }
+
+/* Effetti hover e focus migliorati */
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+/* Animazioni per le tabelle */
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+    .table tbody tr:hover {
+        transform: scale(1.01);
+    }
+
+/* Responsive improvements */
+@media (max-width: 992px) {
+    .card-body {
+        padding: 1rem 0.5rem;
+    }
+
+    select[size] {
+        height: 300px !important;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .container-fluid {
+        padding: 0.25rem;
+    }
+
+    .btn-lg {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+    }
+
+    .card-header h4, .card-header h5 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Form validation styles */
+.is-invalid {
+    border-color: var(--danger-color) !important;
+}
+
+.invalid-feedback {
+    display: block;
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Success/Error messages */
+.alert-dismissible .btn-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}

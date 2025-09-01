@@ -1,0 +1,150 @@
+﻿@model ProgettoTestWeb.Models.MainViewModel
+@{
+    ViewData["Title"] = "Gestione Esami";
+}
+
+<div class="container-fluid">
+    <!-- Pannello Ricerca -->
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Ricerca Esami</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <select id="campoRicerca" class="form-select" asp-for="CampoRicerca">
+                                @foreach (var campo in Model.CampiRicercaDisponibili)
+                                {
+                                    <option value="@campo">@campo</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" id="testoRicerca" class="form-control" placeholder="Inserisci testo di ricerca..."
+                                   asp-for="TestoRicerca" maxlength="100" />
+                        </div>
+                        <div class="col-md-3">
+                            <button id="btnCerca" class="btn btn-primary me-2">CERCA</button>
+                            <button id="btnVediTutti" class="btn btn-secondary">VEDI TUTTI</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Index", "Admin")" class="btn btn-warning btn-lg">
+                APRI ADMIN DB
+            </a>
+        </div>
+    </div>
+
+    <!-- Pannelli Principali -->
+    <div class="row mb-3">
+        <!-- Ambulatori -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header text-center">
+                    <h4 class="mb-0">Ambulatori</h4>
+                </div>
+                <div class="card-body p-0">
+                    <select id="selectAmbulatori" class="form-select border-0" size="18" style="height: 450px; font-size: 16px;">
+                        @foreach (var ambulatorio in Model.Ambulatori)
+                        {
+                            <option value="@ambulatorio">@ambulatorio</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parti del Corpo -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header text-center">
+                    <h4 class="mb-0">Parti del Corpo</h4>
+                </div>
+                <div class="card-body p-0">
+                    <select id="selectPartiCorpo" class="form-select border-0" size="18" style="height: 450px; font-size: 16px;">
+                        <!-- Popolato dinamicamente -->
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Esami -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header text-center">
+                    <h4 class="mb-0">Esami</h4>
+                </div>
+                <div class="card-body p-0">
+                    <select id="selectEsami" class="form-select border-0" size="18" style="height: 450px; font-size: 16px;">
+                        <!-- Popolato dinamicamente -->
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pulsante Conferma -->
+    <div class="row mb-3">
+        <div class="col-md-8 offset-md-4">
+            <button id="btnConfermaEsame" class="btn btn-success btn-lg w-100" style="font-weight: bold;">
+                CONFERMA SELEZIONE
+            </button>
+        </div>
+    </div>
+
+    <!-- Griglia Esami Selezionati -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Esami Selezionati</h5>
+                    <div>
+                        <button id="btnSpostaSu" class="btn btn-outline-primary btn-sm me-1" title="Sposta Su">↑</button>
+                        <button id="btnSpostaGiu" class="btn btn-outline-primary btn-sm me-1" title="Sposta Giù">↓</button>
+                        <button id="btnEliminaRiga" class="btn btn-outline-danger btn-sm" title="Elimina">❌</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table id="tabellaEsamiSelezionati" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Codice Ministeriale</th>
+                                <th>Codice Interno</th>
+                                <th>Descrizione Esame</th>
+                                <th>Ambulatorio</th>
+                                <th>Parte del Corpo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Popolato dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per messaggi -->
+<div class="modal fade" id="messaggiModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="messaggiModalLabel">Messaggio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="messaggiModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/esami-main.js"></script>
+}

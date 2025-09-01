@@ -1,0 +1,294 @@
+﻿@model ProgettoTestWeb.Models.AdminViewModel
+@{
+    ViewData["Title"] = "Amministrazione Database";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <h2>Amministrazione Database</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg">
+                TORNA AL MAIN
+            </a>
+        </div>
+    </div>
+
+    <!-- Messaggi di errore/successo -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.MessaggioErrore))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @Model.MessaggioErrore
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Griglie dati -->
+    <div class="row mb-4">
+        <!-- Ambulatori -->
+        <div class="col-md-2">
+            <div class="card h-100">
+                <div class="card-header text-center">
+                    <h5 class="mb-0">Ambulatori</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="height: 400px;">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabellaAmbulatori">
+                                @foreach (var ambulatorio in Model.Ambulatori)
+                                {
+                                    <tr data-id="@ambulatorio.Id">
+                                        <td>@ambulatorio.Id</td>
+                                        <td>@ambulatorio.NomeAmbulatorio</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer p-2">
+                    <div class="btn-group w-100">
+                        <button class="btn btn-danger btn-sm" id="btnEliminaAmbulatorio">-</button>
+                        <button class="btn btn-success btn-sm" id="btnAggiungiAmbulatorio">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parti del Corpo -->
+        <div class="col-md-2">
+            <div class="card h-100">
+                <div class="card-header text-center">
+                    <h5 class="mb-0">Parti del Corpo</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="height: 400px;">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabellaPartiCorpo">
+                                @foreach (var parte in Model.PartiDelCorpo)
+                                {
+                                    <tr data-id="@parte.Id">
+                                        <td>@parte.Id</td>
+                                        <td>@parte.NomeParte</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer p-2">
+                    <div class="btn-group w-100">
+                        <button class="btn btn-danger btn-sm" id="btnEliminaParteCorpo">-</button>
+                        <button class="btn btn-success btn-sm" id="btnAggiungiParteCorpo">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Esami -->
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header text-center">
+                    <h5 class="mb-0">Esami</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="height: 400px;">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cod. Min.</th>
+                                    <th>Cod. Int.</th>
+                                    <th>Descrizione</th>
+                                    <th>Parte Corpo</th>
+                                    <th>Ambulatori</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabellaEsami">
+                                @foreach (var esame in Model.Esami)
+                                {
+                                    <tr data-id="@esame.Id">
+                                        <td>@esame.Id</td>
+                                        <td>@esame.CodiceMinisteriale</td>
+                                        <td>@esame.CodiceInterno</td>
+                                        <td>@esame.DescrizioneEsame</td>
+                                        <td>@esame.ParteCorpo</td>
+                                        <td>@esame.AmbulatoriString</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer p-2">
+                    <div class="btn-group w-100">
+                        <button class="btn btn-danger btn-sm" id="btnEliminaEsame">-</button>
+                        <button class="btn btn-success btn-sm" id="btnAggiungiEsame">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per aggiungere Ambulatorio -->
+<div class="modal fade" id="modalAggiungiAmbulatorio" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aggiungi Ambulatorio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="nomeAmbulatorio" class="form-label">Nome Ambulatorio</label>
+                    <input type="text" class="form-control" id="nomeAmbulatorio" maxlength="100" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" id="btnSalvaAmbulatorio">Salva</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per aggiungere Parte del Corpo -->
+<div class="modal fade" id="modalAggiungiParteCorpo" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aggiungi Parte del Corpo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="nomeParteCorpo" class="form-label">Nome Parte del Corpo</label>
+                    <input type="text" class="form-control" id="nomeParteCorpo" maxlength="100" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" id="btnSalvaParteCorpo">Salva</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per aggiungere Esame -->
+<div class="modal fade" id="modalAggiungiEsame" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form asp-action="AggiungiEsame" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Aggiungi Esame</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="NuovoEsame.CodiceMinisteriale" class="form-label">Codice Ministeriale</label>
+                                <input asp-for="NuovoEsame.CodiceMinisteriale" class="form-control" maxlength="10" required>
+                                <span asp-validation-for="NuovoEsame.CodiceMinisteriale" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="NuovoEsame.CodiceInterno" class="form-label">Codice Interno</label>
+                                <input asp-for="NuovoEsame.CodiceInterno" class="form-control" maxlength="10" required>
+                                <span asp-validation-for="NuovoEsame.CodiceInterno" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="NuovoEsame.DescrizioneEsame" class="form-label">Descrizione Esame</label>
+                        <input asp-for="NuovoEsame.DescrizioneEsame" class="form-control" maxlength="100" required>
+                        <span asp-validation-for="NuovoEsame.DescrizioneEsame" class="text-danger"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="NuovoEsame.ParteCorpo" class="form-label">Parte del Corpo</label>
+                                <select asp-for="NuovoEsame.ParteCorpo" class="form-select" required>
+                                    <option value="">Seleziona...</option>
+                                    @foreach (var parte in Model.PartiDelCorpo)
+                                    {
+                                        <option value="@parte.NomeParte">@parte.NomeParte</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="NuovoEsame.ParteCorpo" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Ambulatori</label>
+                                <div style="height: 120px; border: 1px solid #ced4da; border-radius: 0.375rem; padding: 0.5rem; overflow-y: auto;">
+                                    @for (int i = 0; i < Model.Ambulatori.Count; i++)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox"
+                                                   name="NuovoEsame.AmbulatoriSelezionati"
+                                                   value="@Model.Ambulatori[i].NomeAmbulatorio"
+                                                   id="amb_@i">
+                                            <label class="form-check-label" for="amb_@i">
+                                                @Model.Ambulatori[i].NomeAmbulatorio
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="text-danger" id="ambulatoriError"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva Esame</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per messaggi -->
+<div class="modal fade" id="messaggiModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="messaggiModalLabel">Messaggio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="messaggiModalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/esami-admin.js"></script>
+}
