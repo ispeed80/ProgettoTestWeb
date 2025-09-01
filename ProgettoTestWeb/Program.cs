@@ -1,29 +1,32 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using ProgettoTestWeb.Services;
-using ProgettoTestWeb.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+// Legge la sezione Database dal JSON
+var dbConfig = builder.Configuration.GetSection("Database");
+string connectionString;
 
-// Configurazione della connection string
-string connectionString = ConfigLoader.CreaConnectionString(builder.Configuration);
-builder.Services.AddSingleton<IEsameService>(provider => new EsameService(connectionString));
-
-// Configurazione sessioni se necessario
-builder.Services.AddSession(options =>
+if (dbConfig.GetValue<bool>("IntegratedSecurity"))
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
+    connectionString = $"Server={dbConfig["Server"]};Database={dbConfig["DatabaseName"]};Trusted_Connection=True;Connect Timeout={dbConfig["TimeoutConnessione"]};";
+}
+else
+{
+    connectionString = $"Server={dbConfig["Server"]};Database={dbConfig["DatabaseName"]};User Id={dbConfig["UserId"]};Password={dbConfig["Password"]};Connect Timeout={dbConfig["TimeoutConnessione"]};";
+}
+
+// Registrazione del servizio EsameService con la connection string
+builder.Services.AddScoped<IEsameService>(_ => new EsameService(connectionString));
+
+// Aggiungi servizi MVC
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Carica configurazioni predefinite all'avvio
-ConfigLoader.CaricaConfigurazione(app.Configuration);
-
-// Configure the HTTP request pipeline.
+// Middleware
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -34,7 +37,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseSession(); // Se utilizzi le sessioni
+
 app.UseAuthorization();
 
 app.MapControllerRoute(

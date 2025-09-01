@@ -11,91 +11,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
-    <style>
-        /* Stili personalizzati per migliorare l'aspetto */
-        .card {
-            border: 2px solid #dee2e6;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-
-        .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 2px solid #dee2e6;
-            font-weight: bold;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: rgba(0, 123, 255, 0.1);
-        }
-
-        .table-active {
-            background-color: rgba(0, 123, 255, 0.2) !important;
-        }
-
-        select[size] {
-            background-color: #f8f9fa;
-        }
-
-            select[size] option:hover {
-                background-color: rgba(0, 123, 255, 0.1);
-            }
-
-            select[size] option:checked {
-                background-color: rgba(0, 123, 255, 0.2);
-            }
-
-        .btn-lg {
-            font-size: 1.1rem;
-            padding: 0.75rem 1.5rem;
-        }
-
-        .sticky-top {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
-
-        /* Miglioramenti responsive */
-        @media (max-width: 768px) {
-            .container-fluid
-
-        {
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }
-
-        .card-body {
-            padding: 0.5rem;
-        }
-
-        .btn-lg {
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-        }
-
-        }
-
-        /* Loading spinner */
-        .loading-spinner {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-        }
-
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.3);
-            z-index: 9998;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -135,8 +51,7 @@
     <footer class="bg-light mt-5 py-3">
         <div class="container-fluid text-center">
             <span class="text-muted">
-                © 2025 Sistema Gestione Esami -
-                Versione Web convertita da WinForms
+                © 2025 Sistema Gestione Esami - Versione Web convertita da WinForms
             </span>
         </div>
     </footer>
@@ -147,9 +62,8 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Custom JS comune -->
+    <!-- Custom JS globale -->
     <script>
-        // Funzioni globali di utilità
         window.AppUtils = {
             mostraLoading: function() {
                 $('#loadingOverlay, #loadingSpinner').show();
@@ -159,7 +73,6 @@
                 $('#loadingOverlay, #loadingSpinner').hide();
             },
 
-            // Gestione errori AJAX globale
             setupGlobalAjaxHandlers: function() {
                 $(document).ajaxStart(function() {
                     window.AppUtils.mostraLoading();
@@ -169,7 +82,7 @@
                     window.AppUtils.nascondiLoading();
                 });
 
-                $(document).ajaxError(function(event, xhr, settings, thrownError) {
+                $(document).ajaxError(function(event, xhr) {
                     window.AppUtils.nascondiLoading();
                     console.error('Errore AJAX:', xhr.responseText);
 
@@ -184,13 +97,12 @@
             }
         };
 
-        // Inizializzazione globale
         $(document).ready(function() {
             window.AppUtils.setupGlobalAjaxHandlers();
 
             // Tooltip Bootstrap
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });

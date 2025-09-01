@@ -34,6 +34,7 @@ namespace ProgettoTestWeb.Services
             _connectionString = connectionString;
         }
 
+        // ==================== GET TUTTI GLI ESAMI ====================
         public async Task<List<Esame>> GetTuttiEsamiAsync()
         {
             var esami = new List<Esame>();
@@ -60,18 +61,19 @@ namespace ProgettoTestWeb.Services
             {
                 esami.Add(new Esame
                 {
-                    Id = reader.GetInt32("Id"),
-                    CodiceMinisteriale = reader.GetString("CodiceMinisteriale"),
-                    CodiceInterno = reader.GetString("CodiceInterno"),
-                    DescrizioneEsame = reader.GetString("DescrizioneEsame"),
-                    ParteCorpo = reader.IsDBNull("ParteCorpo") ? "" : reader.GetString("ParteCorpo"),
-                    Ambulatorio = reader.IsDBNull("Ambulatorio") ? "" : reader.GetString("Ambulatorio")
+                    Id = (int)reader["Id"],
+                    CodiceMinisteriale = reader["CodiceMinisteriale"] as string ?? "",
+                    CodiceInterno = reader["CodiceInterno"] as string ?? "",
+                    DescrizioneEsame = reader["DescrizioneEsame"] as string ?? "",
+                    ParteCorpo = reader["ParteCorpo"] as string ?? "",
+                    Ambulatorio = reader["Ambulatorio"] as string ?? ""
                 });
             }
 
             return esami;
         }
 
+        // ==================== GET AMBULATORI ====================
         public async Task<List<string>> GetAmbulatoriAsync()
         {
             var ambulatori = new List<string>();
@@ -84,12 +86,13 @@ namespace ProgettoTestWeb.Services
 
             while (await reader.ReadAsync())
             {
-                ambulatori.Add(reader.GetString("NomeAmbulatorio"));
+                ambulatori.Add(reader["NomeAmbulatorio"] as string ?? "");
             }
 
             return ambulatori;
         }
 
+        // ==================== GET PARTI DEL CORPO ====================
         public async Task<List<string>> GetPartiCorpoAsync()
         {
             var parti = new List<string>();
@@ -102,7 +105,7 @@ namespace ProgettoTestWeb.Services
 
             while (await reader.ReadAsync())
             {
-                parti.Add(reader.GetString("NomeParte"));
+                parti.Add(reader["NomeParte"] as string ?? "");
             }
 
             return parti;
@@ -128,12 +131,13 @@ namespace ProgettoTestWeb.Services
 
             while (await reader.ReadAsync())
             {
-                parti.Add(reader.GetString("NomeParte"));
+                parti.Add(reader["NomeParte"] as string ?? "");
             }
 
             return parti;
         }
 
+        // ==================== GET ESAMI PER AMBULATORIO E PARTE ====================
         public async Task<List<Esame>> GetEsamiPerAmbulatorioEParteAsync(string ambulatorio, string parteCorpo)
         {
             var esami = new List<Esame>();
@@ -163,18 +167,19 @@ namespace ProgettoTestWeb.Services
             {
                 esami.Add(new Esame
                 {
-                    Id = reader.GetInt32("Id"),
-                    CodiceMinisteriale = reader.GetString("CodiceMinisteriale"),
-                    CodiceInterno = reader.GetString("CodiceInterno"),
-                    DescrizioneEsame = reader.GetString("DescrizioneEsame"),
-                    ParteCorpo = reader.GetString("ParteCorpo"),
-                    Ambulatorio = reader.GetString("Ambulatorio")
+                    Id = (int)reader["Id"],
+                    CodiceMinisteriale = reader["CodiceMinisteriale"] as string ?? "",
+                    CodiceInterno = reader["CodiceInterno"] as string ?? "",
+                    DescrizioneEsame = reader["DescrizioneEsame"] as string ?? "",
+                    ParteCorpo = reader["ParteCorpo"] as string ?? "",
+                    Ambulatorio = reader["Ambulatorio"] as string ?? ""
                 });
             }
 
             return esami;
         }
 
+        // ==================== RICERCA ESAMI ====================
         public async Task<List<Esame>> RicercaEsamiAsync(string filtro, string campo)
         {
             var esami = new List<Esame>();
@@ -211,19 +216,19 @@ namespace ProgettoTestWeb.Services
             {
                 esami.Add(new Esame
                 {
-                    Id = reader.GetInt32("Id"),
-                    CodiceMinisteriale = reader.GetString("CodiceMinisteriale"),
-                    CodiceInterno = reader.GetString("CodiceInterno"),
-                    DescrizioneEsame = reader.GetString("DescrizioneEsame"),
-                    ParteCorpo = reader.GetString("ParteCorpo"),
-                    Ambulatorio = reader.GetString("Ambulatorio")
+                    Id = (int)reader["Id"],
+                    CodiceMinisteriale = reader["CodiceMinisteriale"] as string ?? "",
+                    CodiceInterno = reader["CodiceInterno"] as string ?? "",
+                    DescrizioneEsame = reader["DescrizioneEsame"] as string ?? "",
+                    ParteCorpo = reader["ParteCorpo"] as string ?? "",
+                    Ambulatorio = reader["Ambulatorio"] as string ?? ""
                 });
             }
 
             return esami;
         }
 
-        // ADMIN METHODS
+        // ==================== ADMIN METHODS ====================
         public async Task<List<Ambulatorio>> GetAmbulatoriCompletiAsync()
         {
             var ambulatori = new List<Ambulatorio>();
@@ -238,8 +243,8 @@ namespace ProgettoTestWeb.Services
             {
                 ambulatori.Add(new Ambulatorio
                 {
-                    Id = reader.GetInt32("Id"),
-                    NomeAmbulatorio = reader.GetString("NomeAmbulatorio")
+                    Id = (int)reader["Id"],
+                    NomeAmbulatorio = reader["NomeAmbulatorio"] as string ?? ""
                 });
             }
 
@@ -260,8 +265,8 @@ namespace ProgettoTestWeb.Services
             {
                 parti.Add(new ParteDelCorpo
                 {
-                    Id = reader.GetInt32("Id"),
-                    NomeParte = reader.GetString("NomeParte")
+                    Id = (int)reader["Id"],
+                    NomeParte = reader["NomeParte"] as string ?? ""
                 });
             }
 
@@ -293,14 +298,14 @@ namespace ProgettoTestWeb.Services
 
             while (await reader.ReadAsync())
             {
-                var ambulatoriString = reader.GetString("Ambulatori");
+                var ambulatoriString = reader["Ambulatori"] as string ?? "";
                 esami.Add(new EsameCompleto
                 {
-                    Id = reader.GetInt32("Id"),
-                    CodiceMinisteriale = reader.GetString("CodiceMinisteriale"),
-                    CodiceInterno = reader.GetString("CodiceInterno"),
-                    DescrizioneEsame = reader.GetString("DescrizioneEsame"),
-                    ParteCorpo = reader.GetString("ParteCorpo"),
+                    Id = (int)reader["Id"],
+                    CodiceMinisteriale = reader["CodiceMinisteriale"] as string ?? "",
+                    CodiceInterno = reader["CodiceInterno"] as string ?? "",
+                    DescrizioneEsame = reader["DescrizioneEsame"] as string ?? "",
+                    ParteCorpo = reader["ParteCorpo"] as string ?? "",
                     AmbulatoriAssociati = string.IsNullOrEmpty(ambulatoriString)
                         ? new List<string>()
                         : ambulatoriString.Split(", ").ToList()
@@ -313,7 +318,6 @@ namespace ProgettoTestWeb.Services
         public async Task AggiungiAmbulatorioAsync(string nome)
         {
             const string query = "INSERT INTO Ambulatori (NomeAmbulatorio) VALUES (@nome)";
-
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
             using var cmd = new SqlCommand(query, conn);
@@ -324,7 +328,6 @@ namespace ProgettoTestWeb.Services
         public async Task AggiungiParteCorpoAsync(string nome)
         {
             const string query = "INSERT INTO PartiDelCorpo (NomeParte) VALUES (@nome)";
-
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
             using var cmd = new SqlCommand(query, conn);
@@ -336,15 +339,15 @@ namespace ProgettoTestWeb.Services
         {
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
-            using var transaction = await conn.BeginTransactionAsync();
+            var transaction = conn.BeginTransaction(); // TRANSAZIONE SINCRONA
 
             try
             {
                 // Inserisci l'esame
                 const string insertEsameQuery = @"
-                    INSERT INTO Esami (CodiceMinisteriale, CodiceInterno, DescrizioneEsame, ParteDelCorpoId)
-                    OUTPUT INSERTED.Id
-                    VALUES (@codMin, @codInt, @descr, (SELECT Id FROM PartiDelCorpo WHERE NomeParte = @parte))";
+            INSERT INTO Esami (CodiceMinisteriale, CodiceInterno, DescrizioneEsame, ParteDelCorpoId)
+            OUTPUT INSERTED.Id
+            VALUES (@codMin, @codInt, @descr, (SELECT Id FROM PartiDelCorpo WHERE NomeParte = @parte))";
 
                 int esameId;
                 using (var cmd = new SqlCommand(insertEsameQuery, conn, transaction))
@@ -359,8 +362,8 @@ namespace ProgettoTestWeb.Services
 
                 // Collega agli ambulatori
                 const string insertAmbQuery = @"
-                    INSERT INTO EsamiAmbulatori (EsameId, AmbulatorioId)
-                    VALUES (@esameId, (SELECT Id FROM Ambulatori WHERE NomeAmbulatorio = @amb))";
+            INSERT INTO EsamiAmbulatori (EsameId, AmbulatorioId)
+            VALUES (@esameId, (SELECT Id FROM Ambulatori WHERE NomeAmbulatorio = @amb))";
 
                 foreach (string ambulatorio in esame.AmbulatoriSelezionati)
                 {
@@ -370,11 +373,11 @@ namespace ProgettoTestWeb.Services
                     await cmd.ExecuteNonQueryAsync();
                 }
 
-                await transaction.CommitAsync();
+                transaction.Commit();
             }
             catch
             {
-                await transaction.RollbackAsync();
+                transaction.Rollback();
                 throw;
             }
         }
@@ -382,7 +385,6 @@ namespace ProgettoTestWeb.Services
         public async Task EliminaAmbulatorioAsync(int id)
         {
             const string query = "DELETE FROM Ambulatori WHERE Id = @id";
-
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
             using var cmd = new SqlCommand(query, conn);
@@ -393,7 +395,6 @@ namespace ProgettoTestWeb.Services
         public async Task EliminaParteCorpoAsync(int id)
         {
             const string query = "DELETE FROM PartiDelCorpo WHERE Id = @id";
-
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
             using var cmd = new SqlCommand(query, conn);
@@ -405,7 +406,7 @@ namespace ProgettoTestWeb.Services
         {
             using var conn = new SqlConnection(_connectionString);
             await conn.OpenAsync();
-            using var transaction = await conn.BeginTransactionAsync();
+            var transaction = conn.BeginTransaction(); // TRANSAZIONE SINCRONA
 
             try
             {
@@ -425,11 +426,11 @@ namespace ProgettoTestWeb.Services
                     await cmd.ExecuteNonQueryAsync();
                 }
 
-                await transaction.CommitAsync();
+                transaction.Commit();
             }
             catch
             {
-                await transaction.RollbackAsync();
+                transaction.Rollback();
                 throw;
             }
         }
