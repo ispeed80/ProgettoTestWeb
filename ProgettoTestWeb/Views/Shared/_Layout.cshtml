@@ -10,8 +10,6 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -22,11 +20,11 @@
             </a>
 
             <div class="navbar-nav ms-auto">
-                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "active" : "")"
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")"
                    href="@Url.Action("Index", "Home")">
                     Principale
                 </a>
-                <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Admin" ? "active" : "")"
+                <a class="nav-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Admin" ? "active" : "")"
                    href="@Url.Action("Index", "Admin")">
                     Amministrazione
                 </a>
@@ -40,8 +38,8 @@
     </main>
 
     <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay"></div>
-    <div class="loading-spinner" id="loadingSpinner">
+    <div class="loading-overlay" id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 9999;"></div>
+    <div class="loading-spinner" id="loadingSpinner" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000;">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Caricamento...</span>
         </div>

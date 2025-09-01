@@ -1,36 +1,108 @@
-﻿// File: ProgettoTest/Config/ConfigLoader.cs
+﻿// File: ProgettoTestWeb/Configuration/ConfigLoader.cs
 // Caricatore di configurazione da file INI con reflection dinamica
 
 using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Extensions.Configuration;
 
-namespace ProgettoTest.ConfigPredefiniti
+namespace ProgettoTestWeb.Configuration
 {
+    // Sezione [Database] del file INI
+    public static class Predefiniti_Database
+    {
+        public static string Server { get; set; } = "(localdb)\\MSSQLLocalDB";
+        public static string DatabaseName { get; set; } = "EsamiDB";
+        public static bool IntegratedSecurity { get; set; } = true;
+        public static string UserId { get; set; } = "";
+        public static string Password { get; set; } = "";
+        public static int TimeoutConnessione { get; set; } = 30;
+    }
+
+    // Sezione [Ricerca] del file INI
+    public static class Predefiniti_Ricerca
+    {
+        public static string RicercaPredefinita { get; set; } = "";
+        public static string TipoRicercaPredefinito { get; set; } = "Descrizione Esame";
+    }
+
+    // Sezione [StampaServer] del file INI - esempio delle specifiche
+    public static class Predefiniti_StampaServer
+    {
+        public static int StampaServerEnabled { get; set; } = 0;
+        public static int UpdateInterval { get; set; } = 3;
+    }
+
+    // Sezione [Archivio] del file INI - esempio delle specifiche
+    public static class Predefiniti_Archivio
+    {
+        public static string ArchivioPath { get; set; } = "";
+        public static string CatalogName { get; set; } = "";
+        public static int MaxStorageDaysCheckInterval { get; set; } = 10;
+    }
+
+    // Sezione [Dicom] del file INI - esempio delle specifiche
+    public static class Predefiniti_Dicom
+    {
+        public static string DCMColPrintProcessServerAdditionalOptions { get; set; } = "";
+        public static string DCMBNPrintProcessServerAdditionalOptions { get; set; } = "";
+    }
+
     public static class ConfigLoader
     {
         private const string CONFIG_FILE_NAME = "config.ini";
 
-        public static void CaricaConfigurazione()
+        public static void CaricaConfigurazione(IConfiguration configuration)
         {
-            string configPath = Path.Combine(Application.StartupPath, CONFIG_FILE_NAME);
+            // Carica dalle configurazioni di ASP.NET Core prima
+            CaricaDaConfiguration(configuration);
 
-            if (!File.Exists(configPath))
+            // Poi prova a caricare dal file INI se esiste
+            string configPath = Path.Combine(Directory.GetCurrentDirectory(), CONFIG_FILE_NAME);
+            if (File.Exists(configPath))
             {
-                // File non trovato, usa valori di default
-                return;
+                try
+                {
+                    CaricaConfigurazioneINI(configPath);
+                }
+                catch (Exception ex)
+                {
+                    // Log errore ma continua con valori di default
+                    System.Diagnostics.Debug.WriteLine($"Errore caricamento configurazione: {ex.Message}");
+                }
             }
+        }
 
+        private static void CaricaDaConfiguration(IConfiguration configuration)
+        {
             try
             {
-                CaricaConfigurazioneINI(configPath);
+                // Carica configurazioni Database
+                var dbSection = configuration.GetSection("Database");
+                if (dbSection.Exists())
+                {
+                    Predefiniti_Database.Server = dbSection["Server"] ?? Predefiniti_Database.Server;
+                    Predefiniti_Database.DatabaseName = dbSection["DatabaseName"] ?? Predefiniti_Database.DatabaseName;
+                    if (bool.TryParse(dbSection["IntegratedSecurity"], out bool intSec))
+                        Predefiniti_Database.IntegratedSecurity = intSec;
+                    Predefiniti_Database.UserId = dbSection["UserId"] ?? Predefiniti_Database.UserId;
+                    Predefiniti_Database.Password = dbSection["Password"] ?? Predefiniti_Database.Password;
+                    if (int.TryParse(dbSection["TimeoutConnessione"], out int timeout))
+                        Predefiniti_Database.TimeoutConnessione = timeout;
+                }
+
+                // Carica configurazioni Ricerca
+                var ricercaSection = configuration.GetSection("Ricerca");
+                if (ricercaSection.Exists())
+                {
+                    Predefiniti_Ricerca.RicercaPredefinita = ricercaSection["RicercaPredefinita"] ?? Predefiniti_Ricerca.RicercaPredefinita;
+                    Predefiniti_Ricerca.TipoRicercaPredefinito = ricercaSection["TipoRicercaPredefinito"] ?? Predefiniti_Ricerca.TipoRicercaPredefinito;
+                }
             }
             catch (Exception ex)
             {
-                // Log errore ma continua con valori di default
-                System.Diagnostics.Debug.WriteLine($"Errore caricamento configurazione: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Errore caricamento da appsettings: {ex.Message}");
             }
         }
 
@@ -77,7 +149,7 @@ namespace ProgettoTest.ConfigPredefiniti
             }
 
             // Cerca la classe statica corrispondente
-            string nomeClasse = $"ProgettoTest.ConfigPredefiniti.Predefiniti_{sezione}";
+            string nomeClasse = $"ProgettoTestWeb.Configuration.Predefiniti_{sezione}";
             Type? classeConfig = Type.GetType(nomeClasse);
 
             if (classeConfig == null) return;

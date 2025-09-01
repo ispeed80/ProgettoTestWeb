@@ -1,195 +1,268 @@
-﻿// File: wwwroot/js/esami-main.js
-// Script principale per la gestione degli esami
+﻿// File: wwwroot/js/esami-main-winforms.js
+// JavaScript che replica esattamente la logica di WinForms
 
 $(document).ready(function () {
-
+    // ==================== VARIABILI GLOBALI ====================
+    let ambulatoriData = [];
+    let partiCorpoData = [];
+    let esamiData = [];
     let esamiSelezionati = [];
+    let rigaSelezionata = -1;
     let inModalitaRicerca = false;
-    let tuttiEsami = [];
 
     // ==================== INIZIALIZZAZIONE ====================
+    inizializzaApplicazione();
 
-    // Carica configurazioni predefinite se presenti
-    applicaConfigurazioniPredefinite();
+    function inizializzaApplicazione() {
+        console.log('Inizializzazione app WinForms-like...');
 
-    // Seleziona primo ambulatorio al caricamento
-    if ($('#selectAmbulatori option').length > 0) {
-        $('#selectAmbulatori').prop('selectedIndex', 0);
-        $('#selectAmbulatori').trigger('change');
+        // Setup event handlers
+        setupEventHandlers();
+
+        // Carica dati iniziali
+        caricaDatiIniziali();
+
+        // Applica configurazioni predefinite se presenti
+        applicaConfigurazioniPredefinite();
     }
 
-    // ==================== EVENT HANDLERS ====================
+    function setupEventHandlers() {
+        // ==================== LISTBOX EVENTS ====================
 
-    // Cambio selezione ambulatorio
-    $('#selectAmbulatori').on('change', function () {
-        const ambulatorioSelezionato = $(this).val();
+        // Ambulatori - cambio selezione
+        $('#listAmbulatori').on('change', function () {
+            const ambulatorioSelezionato = $(this).val();
+            if (ambulatorioSelezionato && !inModalitaRicerca) {
+                console.log('Ambulatorio selezionato:', ambulatorioSelezionato);
+                caricaPartiCorpoPerAmbulatorio(ambulatorioSelezionato);
+            }
+        });
 
-        if (!ambulatorioSelezionato) return;
+        // Parti del Corpo - cambio selezione
+        $('#listPartiCorpo').on('change', function () {
+            const parteSelezionata = $(this).val();
+            const ambulatorioSelezionato = $('#listAmbulatori').val();
 
-        // Se in modalità ricerca, resetta
-        if (inModalitaRicerca) {
-            resetRicerca();
-        }
+            if (parteSelezionata && ambulatorioSelezionato && !inModalitaRicerca) {
+                console.log('Parte del corpo selezionata:', parteSelezionata);
+                caricaEsamiPerAmbulatorioEParte(ambulatorioSelezionato, parteSelezionata);
+            }
+        });
 
-        caricaPartiCorpo(ambulatorioSelezionato);
-    });
+        // ==================== BOTTONI NAVIGAZIONE ====================
 
-    // Cambio selezione parte del corpo
-    $('#selectPartiCorpo').on('change', function () {
-        const ambulatorio = $('#selectAmbulatori').val();
-        const parteCorpo = $(this).val();
+        // Ambulatorio Successivo (equivalente a >> in WinForms)
+        $('#btnAmbulatorioSuccessivo').on('click', function () {
+            const ambulatorioSelezionato = $('#listAmbulatori').val();
+            if (ambulatorioSelezionato && !inModalitaRicerca) {
+                caricaPartiCorpoPerAmbulatorio(ambulatorioSelezionato);
+            } else {
+                mostraMessageBox('Attenzione', 'Seleziona un ambulatorio dalla lista', 'warning');
+            }
+        });
 
-        if (!ambulatorio || !parteCorpo) return;
+        // Ambulatorio Reset
+        $('#btnAmbulatorioReset').on('click', function () {
+            resetSelezioniAmbulatorio();
+        });
 
-        // Se in modalità ricerca, resetta
-        if (inModalitaRicerca) {
-            resetRicerca();
-        }
+        // Parte Corpo Precedente (equivalente a << in WinForms)
+        $('#btnParteCorpoPrecedente').on('click', function () {
+            $('#listPartiCorpo').empty();
+            $('#listEsami').empty();
+            abilitaDisabilitaBottoni();
+        });
 
-        caricaEsami(ambulatorio, parteCorpo);
-    });
+        // Parte Corpo Successivo (equivalente a >> in WinForms)
+        $('#btnParteCorpoSuccessivo').on('click', function () {
+            const ambulatorioSelezionato = $('#listAmbulatori').val();
+            const parteSelezionata = $('#listPartiCorpo').val();
 
-    // Cambio selezione esame (solo in modalità ricerca)
-    $('#selectEsami').on('change', function () {
-        if (!inModalitaRicerca) return;
+            if (ambulatorioSelezionato && parteSelezionata && !inModalitaRicerca) {
+                caricaEsamiPerAmbulatorioEParte(ambulatorioSelezionato, parteSelezionata);
+            } else {
+                mostraMessageBox('Attenzione', 'Seleziona ambulatorio e parte del corpo', 'warning');
+            }
+        });
 
-        const esameSelezionato = $(this).find('option:selected');
-        if (esameSelezionato.length === 0) return;
+        // Parte Corpo Reset
+        $('#btnParteCorpoReset').on('click', function () {
+            resetSelezioniParteCorpo();
+        });
 
-        const ambulatorio = esameSelezionato.data('ambulatorio');
-        const parteCorpo = esameSelezionato.data('parte-corpo');
+        // Esame Precedente (equivalente a << in WinForms)
+        $('#btnEsamePrecedente').on('click', function () {
+            $('#listEsami').empty();
+            abilitaDisabilitaBottoni();
+        });
 
-        if (ambulatorio && parteCorpo) {
-            aggiornaListBoxPerRicerca(ambulatorio, parteCorpo);
-        }
-    });
+        // ==================== RICERCA ====================
 
-    // Ricerca con pulsante
-    $('#btnCerca').on('click', function () {
-        eseguiRicerca();
-    });
-
-    // Ricerca con Enter
-    $('#testoRicerca').on('keypress', function (e) {
-        if (e.which === 13) { // Enter
-            e.preventDefault();
+        $('#btnCerca').on('click', function () {
             eseguiRicerca();
+        });
+
+        $('#btnVediTutti').on('click', function () {
+            resetRicercaECaricaTutti();
+        });
+
+        $('#testoRicerca').on('keypress', function (e) {
+            if (e.which === 13) { // Enter
+                eseguiRicerca();
+            }
+        });
+
+        // ==================== GESTIONE ESAMI SELEZIONATI ====================
+
+        $('#btnAggiungiEsame').on('click', function () {
+            aggiungiEsameSelezionato();
+        });
+
+        // Selezione riga nella griglia (click su riga)
+        $('#dataGridEsamiSelezionati tbody').on('click', 'tr', function () {
+            if (!$(this).hasClass('empty-row')) {
+                selezionaRigaGriglia($(this).index());
+            }
+        });
+
+        // Bottoni gestione griglia
+        $('#btnSpostaSu').on('click', function () {
+            spostaSu();
+        });
+
+        $('#btnSpostaGiu').on('click', function () {
+            spostaGiu();
+        });
+
+        $('#btnEliminaSelezionato').on('click', function () {
+            eliminaEsameSelezionato();
+        });
+
+        $('#btnPulisciLista').on('click', function () {
+            pulisciListaEsami();
+        });
+
+        $('#btnSalvaEsami').on('click', function () {
+            salvaListaEsami();
+        });
+    }
+
+    // ==================== CARICAMENTO DATI ====================
+
+    function caricaDatiIniziali() {
+        console.log('Caricamento dati iniziali...');
+
+        // Gli ambulatori sono già nel DOM, popoliamo l'array
+        $('#listAmbulatori option').each(function () {
+            ambulatoriData.push($(this).val());
+        });
+
+        // Se ci sono ambulatori, seleziona il primo
+        if (ambulatoriData.length > 0) {
+            $('#listAmbulatori').val(ambulatoriData[0]);
+            // NON caricare automaticamente le parti del corpo - come in WinForms
         }
-    });
 
-    // Reset ricerca
-    $('#btnVediTutti').on('click', function () {
-        resetRicerca();
-        ricaricaDatiCompleti();
-    });
+        abilitaDisabilitaBottoni();
+        aggiornaContatori();
+    }
 
-    // Conferma selezione esame
-    $('#btnConfermaEsame').on('click', function () {
-        aggiungiEsameSelezionato();
-    });
+    function caricaPartiCorpoPerAmbulatorio(ambulatorio) {
+        console.log('Caricando parti del corpo per:', ambulatorio);
 
-    // Gestione tabella esami selezionati
-    $('#btnEliminaRiga').on('click', function () {
-        eliminaRigaSelezionata();
-    });
+        mostraLoading();
 
-    $('#btnSpostaSu').on('click', function () {
-        spostaRiga(-1);
-    });
-
-    $('#btnSpostaGiu').on('click', function () {
-        spostaRiga(1);
-    });
-
-    // Selezione riga tabella
-    $(document).on('click', '#tabellaEsamiSelezionati tbody tr', function () {
-        $('#tabellaEsamiSelezionati tbody tr').removeClass('table-active');
-        $(this).addClass('table-active');
-    });
-
-    // ==================== FUNZIONI CARICAMENTO DATI ====================
-
-    function caricaPartiCorpo(ambulatorio) {
         $.post('/Home/GetPartiCorpo', { ambulatorio: ambulatorio })
             .done(function (response) {
                 if (response.success) {
-                    popolaSelect('#selectPartiCorpo', response.data);
+                    partiCorpoData = response.data;
+                    popolaListPartiCorpo(response.data);
 
-                    // Auto-seleziona prima parte se disponibile
-                    if (response.data.length > 0) {
-                        $('#selectPartiCorpo').prop('selectedIndex', 0);
-                        $('#selectPartiCorpo').trigger('change');
-                    } else {
-                        $('#selectEsami').empty();
-                    }
+                    // Pulisci lista esami
+                    $('#listEsami').empty();
+                    esamiData = [];
                 } else {
-                    mostraErrore(response.message);
+                    mostraMessageBox('Errore', response.message || 'Errore nel caricamento parti del corpo', 'error');
                 }
             })
             .fail(function () {
-                mostraErrore('Errore durante il caricamento delle parti del corpo');
+                mostraMessageBox('Errore', 'Errore di connessione nel caricamento parti del corpo', 'error');
+            })
+            .always(function () {
+                nascondiLoading();
+                abilitaDisabilitaBottoni();
             });
     }
 
-    function caricaEsami(ambulatorio, parteCorpo) {
+    function caricaEsamiPerAmbulatorioEParte(ambulatorio, parteCorpo) {
+        console.log('Caricando esami per:', ambulatorio, '-', parteCorpo);
+
+        mostraLoading();
+
         $.post('/Home/GetEsami', {
             ambulatorio: ambulatorio,
             parteCorpo: parteCorpo
         })
             .done(function (response) {
                 if (response.success) {
-                    popolaSelectEsami(response.data);
-
-                    // Auto-seleziona primo esame se disponibile
-                    if (response.data.length > 0) {
-                        $('#selectEsami').prop('selectedIndex', 0);
-                    }
+                    esamiData = response.data;
+                    popolaListEsami(response.data);
                 } else {
-                    mostraErrore(response.message);
+                    mostraMessageBox('Errore', response.message || 'Errore nel caricamento esami', 'error');
                 }
             })
             .fail(function () {
-                mostraErrore('Errore durante il caricamento degli esami');
-            });
-    }
-
-    function ricaricaDatiCompleti() {
-        $.post('/Home/GetDatiCompleti')
-            .done(function (response) {
-                if (response.success) {
-                    popolaSelect('#selectAmbulatori', response.data.ambulatori);
-                    popolaSelect('#selectPartiCorpo', response.data.parti);
-                    popolaSelectEsami(response.data.esami);
-
-                    // Auto-seleziona primi elementi
-                    if (response.data.ambulatori.length > 0) {
-                        $('#selectAmbulatori').prop('selectedIndex', 0);
-                    }
-                    if (response.data.parti.length > 0) {
-                        $('#selectPartiCorpo').prop('selectedIndex', 0);
-                    }
-                    if (response.data.esami.length > 0) {
-                        $('#selectEsami').prop('selectedIndex', 0);
-                    }
-                } else {
-                    mostraErrore(response.message);
-                }
+                mostraMessageBox('Errore', 'Errore di connessione nel caricamento esami', 'error');
             })
-            .fail(function () {
-                mostraErrore('Errore durante il caricamento dei dati');
+            .always(function () {
+                nascondiLoading();
+                abilitaDisabilitaBottoni();
             });
     }
 
-    // ==================== FUNZIONI RICERCA ====================
+    // ==================== POPOLAMENTO LISTE ====================
+
+    function popolaListPartiCorpo(parti) {
+        const list = $('#listPartiCorpo');
+        list.empty();
+
+        parti.forEach(function (parte) {
+            list.append(new Option(parte, parte));
+        });
+
+        console.log('Caricate', parti.length, 'parti del corpo');
+    }
+
+    function popolaListEsami(esami) {
+        const list = $('#listEsami');
+        list.empty();
+
+        esami.forEach(function (esame) {
+            // Mostra solo la descrizione nella lista, come in WinForms
+            const option = new Option(esame.descrizioneEsame, esame.id);
+            option.dataset.esame = JSON.stringify(esame);
+            list.append(option);
+        });
+
+        console.log('Caricati', esami.length, 'esami');
+    }
+
+    // ==================== RICERCA ====================
 
     function eseguiRicerca() {
         const filtro = $('#testoRicerca').val().trim();
         const campo = $('#campoRicerca').val();
 
         if (!filtro) {
-            mostraErrore('Inserire un testo di ricerca');
+            mostraMessageBox('Attenzione', 'Inserire un testo di ricerca', 'warning');
+            $('#testoRicerca').focus();
             return;
         }
+
+        console.log('Eseguendo ricerca:', campo, '=', filtro);
+
+        mostraLoading();
+        inModalitaRicerca = true;
 
         $.post('/Home/RicercaEsami', {
             filtro: filtro,
@@ -197,504 +270,349 @@ $(document).ready(function () {
         })
             .done(function (response) {
                 if (response.success) {
-                    if (response.data.length === 0) {
-                        mostraMessaggio('Nessun risultato trovato.', 'warning');
-                        resetRicerca();
-                        ricaricaDatiCompleti();
-                        return;
-                    }
-
-                    inModalitaRicerca = true;
-                    tuttiEsami = response.data;
+                    // Modalità ricerca: svuota le altre liste e mostra solo i risultati
+                    $('#listAmbulatori').empty().append(new Option('*** RISULTATI RICERCA ***', ''));
+                    $('#listPartiCorpo').empty().append(new Option('*** RISULTATI RICERCA ***', ''));
 
                     // Popola solo la lista esami con i risultati
-                    popolaSelectEsami(response.data);
+                    popolaListEsami(response.data);
 
-                    // Svuota le altre liste
-                    $('#selectAmbulatori').empty();
-                    $('#selectPartiCorpo').empty();
-
-                    // Auto-seleziona primo risultato se presente
-                    if (response.data.length > 0) {
-                        $('#selectEsami').prop('selectedIndex', 0);
-                        $('#selectEsami').trigger('change');
-                    }
+                    mostraMessageBox('Successo', `Trovati ${response.data.length} esami corrispondenti`, 'success');
                 } else {
-                    mostraErrore(response.message);
+                    mostraMessageBox('Errore', response.message || 'Errore nella ricerca', 'error');
                 }
             })
             .fail(function () {
-                mostraErrore('Errore durante la ricerca');
+                mostraMessageBox('Errore', 'Errore di connessione nella ricerca', 'error');
+            })
+            .always(function () {
+                nascondiLoading();
+                abilitaDisabilitaBottoni();
             });
     }
 
-    function resetRicerca() {
+    function resetRicercaECaricaTutti() {
+        console.log('Reset ricerca e caricamento tutti i dati');
+
+        // Pulisci campo ricerca
         $('#testoRicerca').val('');
         inModalitaRicerca = false;
-        tuttiEsami = [];
-    }
 
-    function aggiornaListBoxPerRicerca(ambulatorio, parteCorpo) {
-        // Aggiorna ambulatori e parti corpo con i dati dell'esame selezionato
-        $('#selectAmbulatori').empty().append($('<option>', {
-            value: ambulatorio,
-            text: ambulatorio,
-            selected: true
-        }));
+        mostraLoading();
 
-        $('#selectPartiCorpo').empty().append($('<option>', {
-            value: parteCorpo,
-            text: parteCorpo,
-            selected: true
-        }));
+        $.post('/Home/GetDatiCompleti')
+            .done(function (response) {
+                if (response.success) {
+                    const data = response.data;
+
+                    // Ripopolazione delle liste
+                    ambulatoriData = data.ambulatori;
+                    partiCorpoData = [];
+                    esamiData = [];
+
+                    // Riempie la lista ambulatori
+                    const listAmb = $('#listAmbulatori');
+                    listAmb.empty();
+                    data.ambulatori.forEach(function (amb) {
+                        listAmb.append(new Option(amb, amb));
+                    });
+
+                    // Pulisci le altre liste
+                    $('#listPartiCorpo').empty();
+                    $('#listEsami').empty();
+
+                    // Auto-seleziona il primo ambulatorio se disponibile
+                    if (data.ambulatori.length > 0) {
+                        listAmb.val(data.ambulatori[0]);
+                    }
+
+                    mostraMessageBox('Successo', 'Dati ricaricati correttamente', 'success');
+                } else {
+                    mostraMessageBox('Errore', response.message || 'Errore nel caricamento dati', 'error');
+                }
+            })
+            .fail(function () {
+                mostraMessageBox('Errore', 'Errore di connessione nel caricamento dati', 'error');
+            })
+            .always(function () {
+                nascondiLoading();
+                abilitaDisabilitaBottoni();
+            });
     }
 
     // ==================== GESTIONE ESAMI SELEZIONATI ====================
 
     function aggiungiEsameSelezionato() {
-        const esameSelezionato = $('#selectEsami').find('option:selected');
-        const ambulatorioSelezionato = $('#selectAmbulatori').find('option:selected');
-        const parteCorpoSelezionata = $('#selectPartiCorpo').find('option:selected');
+        const esameOption = $('#listEsami option:selected');
 
-        if (esameSelezionato.length === 0 || ambulatorioSelezionato.length === 0 || parteCorpoSelezionata.length === 0) {
-            mostraErrore('Selezionare un esame completo prima di confermare');
+        if (esameOption.length === 0) {
+            mostraMessageBox('Attenzione', 'Seleziona un esame dalla lista', 'warning');
             return;
         }
 
-        const esame = {
-            codiceMinisteriale: esameSelezionato.data('codice-ministeriale') || '',
-            codiceInterno: esameSelezionato.data('codice-interno') || '',
-            descrizioneEsame: esameSelezionato.text(),
-            ambulatorio: ambulatorioSelezionato.text(),
-            parteCorpo: parteCorpoSelezionata.text()
-        };
+        try {
+            const esameData = JSON.parse(esameOption.data('esame'));
 
-        // Aggiungi alla tabella
-        const nuovaRiga = `
-            <tr>
-                <td>${esame.codiceMinisteriale}</td>
-                <td>${esame.codiceInterno}</td>
-                <td>${esame.descrizioneEsame}</td>
-                <td>${esame.ambulatorio}</td>
-                <td>${esame.parteCorpo}</td>
-            </tr>`;
+            // Controlla se l'esame è già presente (come in WinForms)
+            const esistente = esamiSelezionati.find(e => e.id === esameData.id);
+            if (esistente) {
+                mostraMessageBox('Attenzione', 'Esame già presente nella lista selezionati', 'warning');
+                return;
+            }
 
-        $('#tabellaEsamiSelezionati tbody').append(nuovaRiga);
+            // Aggiungi alla lista
+            esamiSelezionati.push(esameData);
+            aggiornaGrigliaEsami();
+            aggiornaContatori();
 
-        mostraMessaggio('Esame aggiunto con successo!', 'success');
+            console.log('Esame aggiunto:', esameData.descrizioneEsame);
+            mostraMessageBox('Successo', `Esame "${esameData.descrizioneEsame}" aggiunto alla lista`, 'success');
+
+        } catch (error) {
+            console.error('Errore nel parsing dei dati esame:', error);
+            mostraMessageBox('Errore', 'Errore nell\'elaborazione dei dati esame', 'error');
+        }
     }
 
-    function eliminaRigaSelezionata() {
-        const rigaSelezionata = $('#tabellaEsamiSelezionati tbody tr.table-active');
+    function aggiornaGrigliaEsami() {
+        const tbody = $('#dataGridEsamiSelezionati tbody');
+        tbody.empty();
 
-        if (rigaSelezionata.length === 0) {
-            mostraErrore('Selezionare una riga da eliminare');
-            return;
-        }
-
-        rigaSelezionata.remove();
-    }
-
-    function spostaRiga(direzione) {
-        const rigaSelezionata = $('#tabellaEsamiSelezionati tbody tr.table-active');
-
-        if (rigaSelezionata.length === 0) {
-            mostraErrore('Selezionare una riga da spostare');
-            return;
-        }
-
-        const righe = $('#tabellaEsamiSelezionati tbody tr');
-        const indiceCorrente = righe.index(rigaSelezionata);
-        const nuovoIndice = indiceCorrente + direzione;
-
-        // Verifica limiti
-        if (nuovoIndice < 0 || nuovoIndice >= righe.length) {
-            return;
-        }
-
-        // Esegui spostamento
-        if (direzione === -1) {
-            rigaSelezionata.insertBefore(righe.eq(nuovoIndice));
+        if (esamiSelezionati.length === 0) {
+            // Mostra riga vuota come in WinForms
+            tbody.append(`
+                <tr class="empty-row">
+                    <td colspan="5" class="text-center text-muted py-4">
+                        <em>Nessun esame selezionato. Utilizzare "AGGIUNGI ESAME" per aggiungere esami alla lista.</em>
+                    </td>
+                </tr>
+            `);
         } else {
-            rigaSelezionata.insertAfter(righe.eq(nuovoIndice));
-        }
-
-        // Mantieni la selezione
-        rigaSelezionata.addClass('table-active');
-    }
-
-    // ==================== FUNZIONI HELPER ====================
-
-    function popolaSelect(selector, items) {
-        const select = $(selector);
-        select.empty();
-
-        items.forEach(function (item) {
-            select.append($('<option>', {
-                value: item,
-                text: item
-            }));
-        });
-    }
-
-    function popolaSelectEsami(esami) {
-        const select = $('#selectEsami');
-        select.empty();
-
-        esami.forEach(function (esame) {
-            const option = $('<option>', {
-                value: esame.id,
-                text: esame.descrizioneEsame,
-                'data-codice-ministeriale': esame.codiceMinisteriale,
-                'data-codice-interno': esame.codiceInterno,
-                'data-ambulatorio': esame.ambulatorio,
-                'data-parte-corpo': esame.parteCorpo
+            esamiSelezionati.forEach(function (esame, index) {
+                const isSelected = index === rigaSelezionata;
+                const row = `
+                    <tr data-index="${index}" ${isSelected ? 'class="selected"' : ''}>
+                        <td>${esame.codiceMinisteriale}</td>
+                        <td>${esame.codiceInterno}</td>
+                        <td>${esame.descrizioneEsame}</td>
+                        <td>${esame.ambulatorio}</td>
+                        <td>${esame.parteCorpo}</td>
+                    </tr>
+                `;
+                tbody.append(row);
             });
-            select.append(option);
-        });
-    }
-
-    function mostraMessaggio(messaggio, tipo = 'info') {
-        const modal = $('#messaggiModal');
-        const body = $('#messaggiModalBody');
-        const title = $('#messaggiModalLabel');
-
-        switch (tipo) {
-            case 'success':
-                title.text('Successo');
-                body.html(`<div class="alert alert-success">${messaggio}</div>`);
-                break;
-            case 'warning':
-                title.text('Avviso');
-                body.html(`<div class="alert alert-warning">${messaggio}</div>`);
-                break;
-            case 'error':
-                title.text('Errore');
-                body.html(`<div class="alert alert-danger">${messaggio}</div>`);
-                break;
-            default:
-                title.text('Informazione');
-                body.html(`<div class="alert alert-info">${messaggio}</div>`);
         }
 
-        modal.modal('show');
+        abilitaDisabilitaBottoni();
     }
 
-    function mostraErrore(messaggio) {
-        mostraMessaggio(messaggio, 'error');
+    function selezionaRigaGriglia(index) {
+        rigaSelezionata = index;
+        console.log('Riga selezionata:', index);
+        aggiornaGrigliaEsami(); // Riaggiorna per evidenziare la selezione
+    }
+
+    function spostaSu() {
+        if (rigaSelezionata <= 0 || esamiSelezionati.length < 2) {
+            mostraMessageBox('Attenzione', 'Seleziona una riga da spostare (non la prima)', 'warning');
+            return;
+        }
+
+        // Scambia elementi (come in WinForms)
+        const temp = esamiSelezionati[rigaSelezionata];
+        esamiSelezionati[rigaSelezionata] = esamiSelezionati[rigaSelezionata - 1];
+        esamiSelezionati[rigaSelezionata - 1] = temp;
+
+        rigaSelezionata--;
+        aggiornaGrigliaEsami();
+
+        console.log('Esame spostato su');
+    }
+
+    function spostaGiu() {
+        if (rigaSelezionata < 0 || rigaSelezionata >= esamiSelezionati.length - 1) {
+            mostraMessageBox('Attenzione', 'Seleziona una riga da spostare (non l\'ultima)', 'warning');
+            return;
+        }
+
+        // Scambia elementi (come in WinForms)
+        const temp = esamiSelezionati[rigaSelezionata];
+        esamiSelezionati[rigaSelezionata] = esamiSelezionati[rigaSelezionata + 1];
+        esamiSelezionati[rigaSelezionata + 1] = temp;
+
+        rigaSelezionata++;
+        aggiornaGrigliaEsami();
+
+        console.log('Esame spostato giù');
+    }
+
+    function eliminaEsameSelezionato() {
+        if (rigaSelezionata < 0 || rigaSelezionata >= esamiSelezionati.length) {
+            mostraMessageBox('Attenzione', 'Seleziona una riga da eliminare', 'warning');
+            return;
+        }
+
+        const esameEliminato = esamiSelezionati[rigaSelezionata];
+
+        // Conferma eliminazione (come MessageBox.Show in WinForms)
+        if (confirm(`Eliminare l'esame "${esameEliminato.descrizioneEsame}" dalla lista?`)) {
+            // Rimuovi dall'array
+            esamiSelezionati.splice(rigaSelezionata, 1);
+
+            // Aggiusta la selezione
+            if (rigaSelezionata >= esamiSelezionati.length) {
+                rigaSelezionata = esamiSelezionati.length - 1;
+            }
+
+            aggiornaGrigliaEsami();
+            aggiornaContatori();
+
+            console.log('Esame eliminato:', esameEliminato.descrizioneEsame);
+            mostraMessageBox('Successo', 'Esame eliminato dalla lista', 'success');
+        }
+    }
+
+    function pulisciListaEsami() {
+        if (esamiSelezionati.length === 0) {
+            mostraMessageBox('Attenzione', 'La lista è già vuota', 'warning');
+            return;
+        }
+
+        // Conferma pulizia (come MessageBox.Show in WinForms)
+        if (confirm(`Eliminare tutti i ${esamiSelezionati.length} esami dalla lista?`)) {
+            esamiSelezionati = [];
+            rigaSelezionata = -1;
+            aggiornaGrigliaEsami();
+            aggiornaContatori();
+
+            console.log('Lista esami pulita');
+            mostraMessageBox('Successo', 'Lista esami pulita', 'success');
+        }
+    }
+
+    function salvaListaEsami() {
+        if (esamiSelezionati.length === 0) {
+            mostraMessageBox('Attenzione', 'Nessun esame da salvare', 'warning');
+            return;
+        }
+
+        // Simulazione salvataggio (in WinForms andresti su DB o file)
+        console.log('Salvataggio lista esami:', esamiSelezionati);
+
+        // Potresti implementare qui una chiamata AJAX per salvare su DB
+        mostraMessageBox('Successo', `Lista di ${esamiSelezionati.length} esami salvata correttamente`, 'success');
+    }
+
+    // ==================== RESET E NAVIGAZIONE ====================
+
+    function resetSelezioniAmbulatorio() {
+        $('#listAmbulatori').val('');
+        $('#listPartiCorpo').empty();
+        $('#listEsami').empty();
+        partiCorpoData = [];
+        esamiData = [];
+        abilitaDisabilitaBottoni();
+        console.log('Reset selezioni ambulatorio');
+    }
+
+    function resetSelezioniParteCorpo() {
+        $('#listPartiCorpo').val('');
+        $('#listEsami').empty();
+        esamiData = [];
+        abilitaDisabilitaBottoni();
+        console.log('Reset selezioni parte corpo');
+    }
+
+    // ==================== UTILITY E UI ====================
+
+    function abilitaDisabilitaBottoni() {
+        const ambulatorioSelezionato = $('#listAmbulatori').val();
+        const parteSelezionata = $('#listPartiCorpo').val();
+        const esameSelezionato = $('#listEsami').val();
+        const hasPartiCorpo = $('#listPartiCorpo option').length > 0;
+        const hasEsami = $('#listEsami option').length > 0;
+        const hasEsamiSelezionati = esamiSelezionati.length > 0;
+        const rigaValida = rigaSelezionata >= 0 && rigaSelezionata < esamiSelezionati.length;
+
+        // Bottoni ambulatorio
+        $('#btnAmbulatorioSuccessivo').prop('disabled', !ambulatorioSelezionato || inModalitaRicerca);
+        $('#btnAmbulatorioReset').prop('disabled', false);
+
+        // Bottoni parte corpo
+        $('#btnParteCorpoPrecedente').prop('disabled', !hasPartiCorpo);
+        $('#btnParteCorpoSuccessivo').prop('disabled', !parteSelezionata || inModalitaRicerca);
+        $('#btnParteCorpoReset').prop('disabled', !hasPartiCorpo);
+
+        // Bottoni esame
+        $('#btnEsamePrecedente').prop('disabled', !hasEsami);
+        $('#btnAggiungiEsame').prop('disabled', !esameSelezionato);
+
+        // Bottoni griglia
+        $('#btnSpostaSu').prop('disabled', !rigaValida || rigaSelezionata <= 0);
+        $('#btnSpostaGiu').prop('disabled', !rigaValida || rigaSelezionata >= esamiSelezionati.length - 1);
+        $('#btnEliminaSelezionato').prop('disabled', !rigaValida);
+        $('#btnPulisciLista').prop('disabled', !hasEsamiSelezionati);
+        $('#btnSalvaEsami').prop('disabled', !hasEsamiSelezionati);
+    }
+
+    function aggiornaContatori() {
+        $('#contatoreEsami').text(esamiSelezionati.length);
     }
 
     function applicaConfigurazioniPredefinite() {
-        // Applica ricerca predefinita se presente nel campo hidden o tramite AJAX
+        // Applica configurazioni predefinite dal server se presenti
         const testoRicerca = $('#testoRicerca').val();
-        if (testoRicerca) {
+        if (testoRicerca && testoRicerca.trim()) {
+            console.log('Applicando ricerca predefinita:', testoRicerca);
             setTimeout(function () {
                 eseguiRicerca();
             }, 500);
         }
     }
 
-    // ==================== GESTIONE CONFIGURAZIONI PREDEFINITE ====================
-
-    function applicaConfigurazioniPredefinite() {
-        // Verifica se c'è una ricerca predefinita
-        const ricercaPredefinita = $('#ricercaPredefinita').val();
-        const inRicerca = $('#inModalitaRicerca').val() === 'true';
-
-        if (ricercaPredefinita && ricercaPredefinita.trim() !== '') {
-            setTimeout(function () {
-                $('#testoRicerca').val(ricercaPredefinita);
-                eseguiRicerca();
-            }, 500); // Aspetta che la pagina sia completamente caricata
+    function mostraLoading() {
+        if (window.AppUtils && window.AppUtils.mostraLoading) {
+            window.AppUtils.mostraLoading();
         }
     }
 
-    // ==================== REPLICA LOGICA WINFORMS ====================
-
-    function caricaPartiCorpo(ambulatorio) {
-        if (!ambulatorio) {
-            $('#selectPartiCorpo').empty();
-            $('#selectEsami').empty();
-            return;
+    function nascondiLoading() {
+        if (window.AppUtils && window.AppUtils.nascondiLoading) {
+            window.AppUtils.nascondiLoading();
         }
-
-        $.post('/Home/GetPartiCorpo', { ambulatorio: ambulatorio })
-            .done(function (response) {
-                if (response.success) {
-                    popolaSelect('#selectPartiCorpo', response.data);
-
-                    // Auto-seleziona prima parte se disponibile (logica WinForms)
-                    if (response.data.length > 0) {
-                        $('#selectPartiCorpo').prop('selectedIndex', 0);
-                        $('#selectPartiCorpo').trigger('change');
-                    } else {
-                        $('#selectEsami').empty();
-                    }
-                } else {
-                    mostraErrore(response.message || 'Errore caricamento parti del corpo');
-                    $('#selectPartiCorpo').empty();
-                    $('#selectEsami').empty();
-                }
-            })
-            .fail(function (xhr, status, error) {
-                mostraErrore('Errore di comunicazione durante il caricamento delle parti del corpo');
-                $('#selectPartiCorpo').empty();
-                $('#selectEsami').empty();
-            });
     }
 
-    function caricaEsami(ambulatorio, parteCorpo) {
-        if (!ambulatorio || !parteCorpo) {
-            $('#selectEsami').empty();
-            return;
-        }
+    function mostraMessageBox(titolo, messaggio, tipo = 'info') {
+        // Simula MessageBox.Show di WinForms
+        console.log(`${titolo}: ${messaggio}`);
 
-        $.post('/Home/GetEsami', {
-            ambulatorio: ambulatorio,
-            parteCorpo: parteCorpo
-        })
-            .done(function (response) {
-                if (response.success) {
-                    popolaSelectEsami(response.data);
+        $('#messageBoxTitle').text(titolo);
+        $('#messageBoxMessage').text(messaggio);
 
-                    // Auto-seleziona primo esame se disponibile (logica WinForms)
-                    if (response.data.length > 0) {
-                        $('#selectEsami').prop('selectedIndex', 0);
-                    }
-                } else {
-                    mostraErrore(response.message || 'Errore caricamento esami');
-                    $('#selectEsami').empty();
-                }
-            })
-            .fail(function (xhr, status, error) {
-                mostraErrore('Errore di comunicazione durante il caricamento degli esami');
-                $('#selectEsami').empty();
-            });
+        // Icona in base al tipo
+        const iconClass = tipo === 'error' ? 'bi-exclamation-triangle text-danger' :
+            tipo === 'warning' ? 'bi-exclamation-triangle text-warning' :
+                tipo === 'success' ? 'bi-check-circle text-success' :
+                    'bi-info-circle text-primary';
+
+        $('#messageBoxIcon').attr('class', `bi ${iconClass} me-2`);
+
+        $('#messageBoxModal').modal('show');
     }
 
-    function eseguiRicerca() {
-        const filtro = $('#testoRicerca').val().trim();
-        const campo = $('#campoRicerca').val();
+    // ==================== DEBUG E LOG ====================
 
-        if (!filtro) {
-            mostraErrore('Inserire un testo di ricerca');
-            return;
-        }
+    // Debug: Mostra stato corrente (utile per troubleshooting)
+    window.debugEsamiApp = function () {
+        console.log('=== DEBUG ESAMI APP ===');
+        console.log('Ambulatori data:', ambulatoriData);
+        console.log('Parti corpo data:', partiCorpoData);
+        console.log('Esami data:', esamiData);
+        console.log('Esami selezionati:', esamiSelezionati);
+        console.log('Riga selezionata:', rigaSelezionata);
+        console.log('In modalità ricerca:', inModalitaRicerca);
+        console.log('========================');
+    };
 
-        $.post('/Home/RicercaEsami', {
-            filtro: filtro,
-            campo: campo
-        })
-            .done(function (response) {
-                if (response.success) {
-                    if (response.data.length === 0) {
-                        mostraMessaggio('Nessun risultato trovato per la ricerca.', 'warning');
-                        resetRicerca();
-                        ricaricaDatiCompleti();
-                        return;
-                    }
-
-                    // Entra in modalità ricerca
-                    inModalitaRicerca = true;
-                    tuttiEsami = response.data;
-
-                    // Popola solo la lista esami con i risultati (logica WinForms)
-                    popolaSelectEsami(response.data);
-
-                    // Svuota le altre liste come nel WinForms
-                    $('#selectAmbulatori').empty();
-                    $('#selectPartiCorpo').empty();
-
-                    // Auto-seleziona primo risultato se presente
-                    if (response.data.length > 0) {
-                        $('#selectEsami').prop('selectedIndex', 0);
-                        $('#selectEsami').trigger('change');
-                    }
-
-                    log('Ricerca completata', { risultati: response.data.length });
-                } else {
-                    mostraErrore(response.message || 'Errore durante la ricerca');
-                }
-            })
-            .fail(function (xhr, status, error) {
-                mostraErrore('Errore di comunicazione durante la ricerca');
-            });
-    }
-
-    function resetRicerca() {
-        $('#testoRicerca').val('');
-        inModalitaRicerca = false;
-        tuttiEsami = [];
-        log('Ricerca resettata');
-    }
-
-    function aggiornaListBoxPerRicerca(ambulatorio, parteCorpo) {
-        // Logica identica al WinForms per aggiornare le liste durante la ricerca
-        $('#selectAmbulatori').empty().append($('<option>', {
-            value: ambulatorio,
-            text: ambulatorio,
-            selected: true
-        }));
-
-        $('#selectPartiCorpo').empty().append($('<option>', {
-            value: parteCorpo,
-            text: parteCorpo,
-            selected: true
-        }));
-
-        log('Liste aggiornate per ricerca', { ambulatorio, parteCorpo });
-    }
-
-    function ricaricaDatiCompleti() {
-        log('Ricaricamento dati completi iniziato');
-
-        $.post('/Home/GetDatiCompleti')
-            .done(function (response) {
-                if (response.success) {
-                    popolaSelect('#selectAmbulatori', response.data.ambulatori);
-                    popolaSelect('#selectPartiCorpo', response.data.parti);
-                    popolaSelectEsami(response.data.esami);
-
-                    // Auto-seleziona primi elementi (logica WinForms)
-                    if (response.data.ambulatori.length > 0) {
-                        $('#selectAmbulatori').prop('selectedIndex', 0);
-                    }
-                    if (response.data.parti.length > 0) {
-                        $('#selectPartiCorpo').prop('selectedIndex', 0);
-                    }
-                    if (response.data.esami.length > 0) {
-                        $('#selectEsami').prop('selectedIndex', 0);
-                    }
-
-                    log('Dati completi ricaricati con successo');
-                } else {
-                    mostraErrore(response.message || 'Errore durante il caricamento dei dati');
-                }
-            })
-            .fail(function (xhr, status, error) {
-                mostraErrore('Errore di comunicazione durante il caricamento dei dati');
-            });
-    }
-
-    function popolaSelectEsami(esami) {
-        const select = $('#selectEsami');
-        select.empty();
-
-        esami.forEach(function (esame) {
-            const option = $('<option>', {
-                value: esame.id,
-                text: esame.descrizioneEsame, // Come nel WinForms, mostra solo la descrizione
-                'data-codice-ministeriale': esame.codiceMinisteriale,
-                'data-codice-interno': esame.codiceInterno,
-                'data-ambulatorio': esame.ambulatorio,
-                'data-parte-corpo': esame.parteCorpo
-            });
-            select.append(option);
-        });
-
-        log('Select esami popolato', { count: esami.length });
-    }
-
-    function aggiungiEsameSelezionato() {
-        const esameOption = $('#selectEsami').find('option:selected');
-        const ambulatorioSelezionato = $('#selectAmbulatori').find('option:selected');
-        const parteCorpoSelezionata = $('#selectPartiCorpo').find('option:selected');
-
-        // Validazione completa come nel WinForms
-        if (esameOption.length === 0 || ambulatorioSelezionato.length === 0 || parteCorpoSelezionata.length === 0) {
-            mostraErrore('Selezionare un esame completo prima di confermare la selezione');
-            return;
-        }
-
-        const esame = {
-            codiceMinisteriale: esameOption.data('codice-ministeriale') || '',
-            codiceInterno: esameOption.data('codice-interno') || '',
-            descrizioneEsame: esameOption.text(),
-            ambulatorio: ambulatorioSelezionato.text(),
-            parteCorpo: parteCorpoSelezionata.text()
-        };
-
-        // Aggiungi alla tabella (replica DataGridView del WinForms)
-        const nuovaRiga = `
-            <tr class="table-row-added">
-                <td>${esame.codiceMinisteriale}</td>
-                <td>${esame.codiceInterno}</td>
-                <td>${esame.descrizioneEsame}</td>
-                <td>${esame.ambulatorio}</td>
-                <td>${esame.parteCorpo}</td>
-            </tr>`;
-
-        $('#tabellaEsamiSelezionati tbody').append(nuovaRiga);
-
-        // Animazione di aggiunta
-        const ultimaRiga = $('#tabellaEsamiSelezionati tbody tr:last');
-        ultimaRiga.hide().fadeIn(300);
-
-        mostraMessaggio('Esame aggiunto con successo!', 'success');
-        log('Esame aggiunto alla tabella', esame);
-    }
-
-    function eliminaRigaSelezionata() {
-        const rigaSelezionata = $('#tabellaEsamiSelezionati tbody tr.table-active');
-
-        if (rigaSelezionata.length === 0) {
-            mostraErrore('Selezionare una riga da eliminare');
-            return;
-        }
-
-        // Animazione di rimozione
-        rigaSelezionata.fadeOut(300, function () {
-            $(this).remove();
-            log('Riga eliminata dalla tabella');
-        });
-    }
-
-    function spostaRiga(direzione) {
-        const rigaSelezionata = $('#tabellaEsamiSelezionati tbody tr.table-active');
-
-        if (rigaSelezionata.length === 0) {
-            mostraErrore('Selezionare una riga da spostare');
-            return;
-        }
-
-        const righe = $('#tabellaEsamiSelezionati tbody tr');
-        const indiceCorrente = righe.index(rigaSelezionata);
-        const nuovoIndice = indiceCorrente + direzione;
-
-        // Verifica limiti (logica identica al WinForms)
-        if (nuovoIndice < 0 || nuovoIndice >= righe.length) {
-            return;
-        }
-
-        // Esegui spostamento con animazione
-        rigaSelezionata.fadeOut(200, function () {
-            if (direzione === -1) {
-                rigaSelezionata.insertBefore(righe.eq(nuovoIndice));
-            } else {
-                rigaSelezionata.insertAfter(righe.eq(nuovoIndice));
-            }
-
-            rigaSelezionata.fadeIn(200);
-            // Mantieni la selezione sulla riga spostata
-            setTimeout(function () {
-                rigaSelezionata.addClass('table-active');
-            }, 250);
-        });
-
-        log('Riga spostata', { direzione, indiceCorrente, nuovoIndice });
-    }
-
-    // ==================== DEBUG E LOGGING ====================
-
-    function log(messaggio, oggetto = null) {
-        console.log(`[EsamiMain] ${messaggio}`, oggetto || '');
-    }
-
-    log('Script esami-main.js caricato correttamente');
-    log('Configurazione iniziale', {
-        ambulatori: $('#selectAmbulatori option').length,
-        partiCorpo: $('#selectPartiCorpo option').length,
-        esami: $('#selectEsami option').length,
-        ricercaPredefinita: $('#ricercaPredefinita').val()
-    });
+    console.log('App WinForms-like inizializzata correttamente');
 });

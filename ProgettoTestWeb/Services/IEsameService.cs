@@ -427,7 +427,15 @@ namespace ProgettoTestWeb.Services
                     cmd.Parameters.AddWithValue("@descr", esame.DescrizioneEsame);
                     cmd.Parameters.AddWithValue("@parte", esame.ParteCorpo);
 
-                    esameId = (int)await cmd.ExecuteScalarAsync();
+                    var result = await cmd.ExecuteScalarAsync();
+                    if (result != null)
+                    {
+                        esameId = (int)result;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Impossibile ottenere l'ID dell'esame inserito");
+                    }
                 }
 
                 // Collega agli ambulatori

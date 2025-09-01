@@ -1,340 +1,354 @@
 /* File: wwwroot/css/site.css */
-/* Stili personalizzati per replicare l'aspetto del WinForms */
+/* Stili personalizzati per replicare esattamente WinForms */
 
-/* ==================== STILI GENERALI ==================== */
+/* ==================== RESET E BASE ==================== */
+* {
+    box-sizing: border-box;
+}
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
-}
-
-.container-fluid {
-    max-width: 1500px;
-    margin: 0 auto;
-}
-
-/* ==================== PANNELLI PRINCIPALI ==================== */
-
-/* Replica l'aspetto delle ListBox del WinForms */
-.form-select[size] {
-    border: 2px solid #dee2e6 !important;
-    border-radius: 4px !important;
-    font-size: 16px !important;
-    font-weight: 500;
-    background-color: #f8f9fa !important;
-    transition: all 0.2s ease;
-}
-
-    .form-select[size]:focus {
-        border-color: #0d6efd !important;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
-        outline: none !important;
-    }
-
-    .form-select[size] option {
-        padding: 8px 12px;
-        font-size: 16px;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-        .form-select[size] option:hover {
-            background-color: #e3f2fd !important;
-        }
-
-        .form-select[size] option:checked {
-            background-color: #0d6efd !important;
-            color: white !important;
-            font-weight: bold;
-        }
-
-/* ==================== HEADERS PANNELLI ==================== */
-
-.card-header h4 {
-    color: #495057;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 13px;
+    background-color: #f0f0f0;
     margin: 0;
-    padding: 10px 0;
+    padding: 0;
 }
 
-/* ==================== PULSANTI ==================== */
-
-/* Pulsante conferma - stile WinForms */
-#btnConfermaEsame {
-    background: linear-gradient(145deg, #28a745, #20c997);
-    border: 2px solid #1e7e34;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
-}
-
-    #btnConfermaEsame:hover {
-        background: linear-gradient(145deg, #20c997, #28a745);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-/* Pulsanti di controllo tabella */
-#btnSpostaSu, #btnSpostaGiu, #btnEliminaRiga {
-    font-weight: bold;
-    min-width: 40px;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#btnEliminaRiga {
-    background-color: #dc3545;
-    border-color: #dc3545;
-    color: white;
-}
-
-    #btnEliminaRiga:hover {
-        background-color: #c82333;
-        border-color: #bd2130;
-    }
-
-/* Pulsanti ricerca */
-#btnCerca {
-    background: linear-gradient(145deg, #007bff, #0056b3);
-    border: 2px solid #004085;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-}
-
-#btnVediTutti {
-    background: linear-gradient(145deg, #6c757d, #545b62);
-    border: 2px solid #495057;
-    font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-}
-
-/* Pulsante Admin */
-.btn-warning.btn-lg {
-    background: linear-gradient(145deg, #ffc107, #e0a800);
-    border: 2px solid #d39e00;
-    color: #212529 !important;
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
-}
-
-/* ==================== TABELLA ESAMI SELEZIONATI ==================== */
-
-#tabellaEsamiSelezionati {
-    font-size: 15px;
-}
-
-    #tabellaEsamiSelezionati thead th {
-        background-color: #343a40 !important;
-        color: white !important;
-        font-weight: bold !important;
-        font-size: 16px;
-        text-align: center;
-        padding: 12px 8px;
-        border: 1px solid #495057;
-    }
-
-    #tabellaEsamiSelezionati tbody tr {
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-        #tabellaEsamiSelezionati tbody tr:hover {
-            background-color: #e3f2fd !important;
-            transform: scale(1.01);
-        }
-
-        #tabellaEsamiSelezionati tbody tr.table-active {
-            background-color: #0d6efd !important;
-            color: white !important;
-            font-weight: bold;
-        }
-
-    #tabellaEsamiSelezionati tbody td {
-        padding: 10px 8px;
-        vertical-align: middle;
-        border: 1px solid #dee2e6;
-    }
-
-/* ==================== PANNELLO RICERCA ==================== */
-
-.card.border-primary {
-    border-width: 2px !important;
-}
-
-.card-header.bg-primary {
-    background: linear-gradient(145deg, #007bff, #0056b3) !important;
-}
-
-#testoRicerca {
-    font-size: 16px;
-    padding: 10px 15px;
-    border: 2px solid #ced4da;
-    transition: all 0.2s ease;
-}
-
-    #testoRicerca:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-    }
-
-#campoRicerca {
-    font-size: 14px;
-    font-weight: 500;
-    border: 2px solid #ced4da;
-}
-
-/* ==================== AMMINISTRAZIONE ==================== */
-
-/* Tabelle admin */
-.table-responsive {
-    border: 2px solid #dee2e6;
-    border-radius: 6px;
-}
-
-.table-sm th {
-    background-color: #f8f9fa !important;
-    font-weight: bold;
-    font-size: 14px;
-    color: #495057;
-    border-bottom: 2px solid #dee2e6;
-}
-
-.table-sm tbody tr {
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-    .table-sm tbody tr:hover {
-        background-color: #e3f2fd !important;
-    }
-
-    .table-sm tbody tr.table-active {
-        background-color: #0d6efd !important;
-        color: white !important;
-        font-weight: bold;
-    }
-
-/* Pulsanti +/- admin */
-.btn-group .btn {
-    font-size: 20px;
-    font-weight: bold;
-    min-width: 50px;
-}
-
-.btn-success {
-    background-color: #28a745 !important;
-    border-color: #1e7e34 !important;
-}
-
-.btn-danger {
-    background-color: #dc3545 !important;
-    border-color: #c82333 !important;
+/* ==================== LAYOUT GLOBALE ==================== */
+.container-fluid {
+    background-color: #f0f0f0;
+    min-height: 100vh;
 }
 
 /* ==================== LOADING ==================== */
-
 .loading-overlay {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9998;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    display: none;
 }
 
 .loading-spinner {
-    display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 9999;
+    z-index: 10000;
+    display: none;
 }
 
-    .loading-spinner .spinner-border {
-        width: 3rem;
-        height: 3rem;
+/* ==================== NAVBAR (MENU) ==================== */
+.navbar {
+    background: linear-gradient(to bottom, #f0f0f0, #e0e0e0) !important;
+    border-bottom: 2px solid #a0a0a0;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    font-size: 12px;
+}
+
+.navbar-brand {
+    color: #000 !important;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.nav-link {
+    color: #000 !important;
+    font-size: 12px;
+    padding: 6px 12px !important;
+}
+
+    .nav-link.active {
+        background-color: rgba(0, 0, 0, 0.1) !important;
+        border-radius: 2px;
     }
+
+    .nav-link:hover {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        border-radius: 2px;
+    }
+
+/* ==================== CARDS E PANELS (WINFORMS GROUPBOX) ==================== */
+.card {
+    border: 2px solid #c0c0c0;
+    border-radius: 0;
+    background-color: #f0f0f0;
+    box-shadow: inset -1px -1px #808080, inset 1px 1px #ffffff;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+.card-header {
+    background: linear-gradient(to bottom, #e8e8e8, #d0d0d0);
+    border-bottom: 1px solid #a0a0a0;
+    color: #000;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 6px 8px;
+}
+
+.card-body {
+    background-color: #f0f0f0;
+    padding: 8px;
+}
+
+/* ==================== WINFORMS LISTBOX ==================== */
+.winforms-listbox-container {
+    border: 2px inset #f0f0f0;
+    background-color: white;
+    box-shadow: inset 1px 1px #808080, inset -1px -1px #ffffff;
+}
+
+.winforms-listbox {
+    border: none;
+    outline: none;
+    background-color: white;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    font-size: 13px;
+    width: 100%;
+    padding: 2px;
+}
+
+    .winforms-listbox option {
+        padding: 2px 6px;
+        color: #000;
+        background-color: white;
+    }
+
+        .winforms-listbox option:selected {
+            background-color: #316ac5;
+            color: white;
+        }
+
+        .winforms-listbox option:hover:not(:selected) {
+            background-color: #e3f2fd;
+            color: #000;
+        }
+
+/* ==================== BOTTONI WINFORMS ==================== */
+.btn {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    font-size: 11px;
+    border-radius: 2px;
+    border: 1px solid #a0a0a0;
+    padding: 4px 8px;
+    background: linear-gradient(to bottom, #f8f8f8, #e0e0e0);
+    color /* File: wwwroot/css/site.css */
+    /* Stili personalizzati per l'applicazione Gestione Esami */
+    /* ==================== STILI GLOBALI ==================== */
+    body
+
+{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    display: none;
+}
+
+.loading-spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+    display: none;
+}
+
+/* ==================== NAVBAR ==================== */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.nav-link.active {
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 4px;
+}
 
 /* ==================== CARDS ==================== */
-
 .card {
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
 }
 
-    .card:hover {
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        transform: translateY(-1px);
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e0e0e0;
+    font-weight: bold;
+}
+
+/* ==================== SELECT BOX STILE WINFORMS ==================== */
+.form-select[size] {
+    height: auto !important;
+    padding: 0;
+}
+
+    .form-select[size] option {
+        padding: 8px 12px;
+        border-bottom: 1px solid #e9ecef;
     }
 
-.shadow-sm {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
-}
+        .form-select[size] option:selected {
+            background-color: #0d6efd;
+            color: white;
+            font-weight: bold;
+        }
 
-.shadow {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
+        .form-select[size] option:hover {
+            background-color: #e3f2fd;
+            color: #0d6efd;
+        }
 
-/* ==================== MODAL ==================== */
-
-.modal-content {
-    border: 2px solid #dee2e6;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-.modal-header {
+/* ==================== TABELLE ==================== */
+.table th {
     background-color: #f8f9fa;
     border-bottom: 2px solid #dee2e6;
+    font-weight: bold;
+    color: #495057;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #e3f2fd;
+    cursor: pointer;
+}
+
+.table tbody tr.table-active {
+    background-color: #0d6efd !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+    .table tbody tr.table-active:hover {
+        background-color: #0b5ed7 !important;
+    }
+
+/* ==================== MODALI ==================== */
+.modal-header {
+    border-bottom: 2px solid #e9ecef;
 }
 
 .modal-footer {
-    background-color: #f8f9fa;
-    border-top: 2px solid #dee2e6;
+    border-top: 2px solid #e9ecef;
 }
 
-/* ==================== RESPONSIVE ==================== */
+.modal-lg {
+    max-width: 800px;
+}
 
+/* ==================== BOTTONI ==================== */
+.btn {
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+.btn-lg {
+    font-size: 1.1rem;
+    padding: 12px 24px;
+}
+
+/* ==================== ADMIN SPECIFICI ==================== */
+.selectable-row {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .selectable-row:hover {
+        background-color: #e3f2fd !important;
+        transform: scale(1.01);
+    }
+
+    .selectable-row.table-active {
+        background-color: #0d6efd !important;
+        color: white !important;
+        font-weight: bold;
+    }
+
+.card-header h5 {
+    font-size: 18px;
+    margin: 0;
+}
+
+.btn-group .btn {
+    font-size: 18px;
+    font-weight: bold;
+    min-height: 40px;
+}
+
+.table-responsive {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+
+.table th {
+    font-weight: bold;
+    font-size: 13px;
+    color: #495057;
+    background-color: #f8f9fa !important;
+    border-bottom: 2px solid #dee2e6;
+    text-align: center;
+}
+
+.table td {
+    font-size: 13px;
+    vertical-align: middle;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* ==================== FORM CONTROLS ==================== */
+.form-control:focus,
+.form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* ==================== RESPONSIVITÀ ==================== */
 @media (max-width: 768px) {
-    .form-select[size] {
-        height: 300px !important;
-        font-size: 14px !important;
-    }
-
-    #btnConfermaEsame {
-        font-size: 16px !important;
-        padding: 15px !important;
-    }
-
-    .card-header h4 {
-        font-size: 18px;
-    }
-
-    .btn-group .btn {
-        font-size: 16px;
-        min-width: 35px;
-    }
-}
-
-@media (max-width: 576px) {
     .container-fluid {
-        padding: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
-    .form-select[size] {
-        height: 250px !important;
+    .card-header h4,
+    .card-header h5 {
+        font-size: 16px;
     }
 
     .btn-lg {
-        font-size: 14px !important;
-        padding: 12px !important;
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+
+    .table-responsive {
+        font-size: 12px;
     }
 }
 
 /* ==================== ANIMAZIONI ==================== */
-
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -348,31 +362,49 @@ body {
 }
 
 .card {
-    animation: fadeIn 0.3s ease-in-out;
+    animation: fadeIn 0.3s ease;
 }
 
-/* ==================== ACCESSIBILITÀ ==================== */
-
-.form-select[size]:focus-visible {
-    outline: 3px solid #80bdff;
-    outline-offset: 2px;
+.modal.fade .modal-dialog {
+    transform: translate(0, -25%);
+    transition: transform 0.3s ease-out;
 }
 
-.btn:focus-visible {
-    outline: 3px solid #80bdff;
-    outline-offset: 2px;
+.modal.show .modal-dialog {
+    transform: translate(0, 0);
 }
 
 /* ==================== UTILITIES ==================== */
-
-.text-shadow {
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+.text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.border-thick {
-    border-width: 2px !important;
+.shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
 
-.fw-bold {
-    font-weight: 700 !important;
+/* ==================== SCROLLBAR PERSONALIZZATE ==================== */
+.table-responsive::-webkit-scrollbar,
+.form-select[size]::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
+
+.table-responsive::-webkit-scrollbar-track,
+.form-select[size]::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb,
+.form-select[size]::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+    .table-responsive::-webkit-scrollbar-thumb:hover,
+    .form-select[size]::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }

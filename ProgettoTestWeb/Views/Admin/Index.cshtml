@@ -1,18 +1,18 @@
 ﻿@model ProgettoTestWeb.Models.AdminViewModel
 @{
-    ViewData["Title"] = "Amministrazione Database";
+    ViewData["Title"] = "Amministrazione Database - Admin";
 }
 
-<div class="container-fluid">
+<div class="container-fluid p-3">
     <!-- Header -->
-    <div class="row mb-4">
+    <div class="row mb-3">
         <div class="col-md-8">
-            <h1 class="display-6 fw-bold text-primary">⚙️ Amministrazione Database</h1>
-            <p class="text-muted">Gestione ambulatori, parti del corpo e esami</p>
+            <h4 class="mb-1">⚙️ Amministrazione Database</h4>
+            <p class="text-muted mb-0">Gestione ambulatori, parti del corpo e esami - Interfaccia amministratore</p>
         </div>
         <div class="col-md-4 text-end">
-            <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg fw-bold">
-                🏠 TORNA AL MAIN
+            <a href="@Url.Action("Index", "Home")" class="btn btn-primary">
+                <i class="bi bi-house"></i> TORNA AL MAIN
             </a>
         </div>
     </div>
@@ -21,7 +21,7 @@
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>✅ Successo!</strong> @TempData["SuccessMessage"]
+            <i class="bi bi-check-circle me-2"></i><strong>Successo!</strong> @TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
@@ -29,142 +29,152 @@
     @if (!string.IsNullOrEmpty(Model.MessaggioErrore))
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <strong>❌ Errore!</strong> @Model.MessaggioErrore
+            <i class="bi bi-exclamation-triangle me-2"></i><strong>Errore!</strong> @Model.MessaggioErrore
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
-    <!-- Griglie dati - Layout simile al WinForms -->
+    <!-- Layout identico a WinForms Admin - 3 pannelli affiancati -->
     <div class="row">
-        <!-- Ambulatori -->
-        <div class="col-md-2">
-            <div class="card h-100 shadow-sm">
-                <div class="card-header bg-light text-center">
-                    <h5 class="mb-0 fw-bold text-primary">🏥 Ambulatori</h5>
+        <!-- AMBULATORI -->
+        <div class="col-md-4">
+            <div class="winforms-admin-panel">
+                <div class="winforms-admin-header">
+                    <h6 class="mb-0">🏥 AMBULATORI</h6>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive" style="height: 500px; overflow-y: auto;">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="table-light sticky-top">
-                                <tr>
-                                    <th style="width: 15%;">ID</th>
-                                    <th style="width: 85%;">Nome</th>
+
+                <!-- DataGridView Ambulatori -->
+                <div class="winforms-admin-datagrid-container">
+                    <table class="winforms-admin-datagrid">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">ID</th>
+                                <th style="width: 80%;">Nome Ambulatorio</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gridAmbulatori">
+                            @foreach (var ambulatorio in Model.Ambulatori)
+                            {
+                                <tr data-id="@ambulatorio.Id" class="admin-row-selectable">
+                                    <td class="text-center">@ambulatorio.Id</td>
+                                    <td>@ambulatorio.NomeAmbulatorio</td>
                                 </tr>
-                            </thead>
-                            <tbody id="tabellaAmbulatori">
-                                @foreach (var ambulatorio in Model.Ambulatori)
-                                {
-                                    <tr data-id="@ambulatorio.Id" class="selectable-row">
-                                        <td class="text-center">@ambulatorio.Id</td>
-                                        <td>@ambulatorio.NomeAmbulatorio</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                            }
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-footer p-2">
-                    <div class="btn-group w-100">
-                        <button class="btn btn-danger btn-sm fw-bold" id="btnEliminaAmbulatorio"
-                                style="font-size: 18px;">
-                            ➖
-                        </button>
-                        <button class="btn btn-success btn-sm fw-bold" id="btnAggiungiAmbulatorio"
-                                style="font-size: 18px;">
-                            ➕
-                        </button>
+
+                <!-- Bottoni sotto la griglia (come in WinForms) -->
+                <div class="winforms-admin-buttons">
+                    <div class="row g-1">
+                        <div class="col-6">
+                            <button id="btnAggiungiAmbulatorio" class="btn btn-success btn-sm w-100">
+                                <i class="bi bi-plus"></i> AGGIUNGI
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button id="btnEliminaAmbulatorio" class="btn btn-danger btn-sm w-100">
+                                <i class="bi bi-trash"></i> ELIMINA
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Parti del Corpo -->
-        <div class="col-md-2">
-            <div class="card h-100 shadow-sm">
-                <div class="card-header bg-light text-center">
-                    <h5 class="mb-0 fw-bold text-info">🫀 Parti del Corpo</h5>
+        <!-- PARTI DEL CORPO -->
+        <div class="col-md-4">
+            <div class="winforms-admin-panel">
+                <div class="winforms-admin-header">
+                    <h6 class="mb-0">🫀 PARTI DEL CORPO</h6>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive" style="height: 500px; overflow-y: auto;">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="table-light sticky-top">
-                                <tr>
-                                    <th style="width: 15%;">ID</th>
-                                    <th style="width: 85%;">Nome</th>
+
+                <!-- DataGridView Parti del Corpo -->
+                <div class="winforms-admin-datagrid-container">
+                    <table class="winforms-admin-datagrid">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">ID</th>
+                                <th style="width: 80%;">Nome Parte</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gridPartiCorpo">
+                            @foreach (var parte in Model.PartiDelCorpo)
+                            {
+                                <tr data-id="@parte.Id" class="admin-row-selectable">
+                                    <td class="text-center">@parte.Id</td>
+                                    <td>@parte.NomeParte</td>
                                 </tr>
-                            </thead>
-                            <tbody id="tabellaPartiCorpo">
-                                @foreach (var parte in Model.PartiDelCorpo)
-                                {
-                                    <tr data-id="@parte.Id" class="selectable-row">
-                                        <td class="text-center">@parte.Id</td>
-                                        <td>@parte.NomeParte</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                            }
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-footer p-2">
-                    <div class="btn-group w-100">
-                        <button class="btn btn-danger btn-sm fw-bold" id="btnEliminaParteCorpo"
-                                style="font-size: 18px;">
-                            ➖
-                        </button>
-                        <button class="btn btn-success btn-sm fw-bold" id="btnAggiungiParteCorpo"
-                                style="font-size: 18px;">
-                            ➕
-                        </button>
+
+                <!-- Bottoni sotto la griglia -->
+                <div class="winforms-admin-buttons">
+                    <div class="row g-1">
+                        <div class="col-6">
+                            <button id="btnAggiungiParteCorpo" class="btn btn-success btn-sm w-100">
+                                <i class="bi bi-plus"></i> AGGIUNGI
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button id="btnEliminaParteCorpo" class="btn btn-danger btn-sm w-100">
+                                <i class="bi bi-trash"></i> ELIMINA
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Esami -->
-        <div class="col-md-8">
-            <div class="card h-100 shadow-sm">
-                <div class="card-header bg-light text-center">
-                    <h5 class="mb-0 fw-bold text-success">🔬 Esami</h5>
+        <!-- ESAMI -->
+        <div class="col-md-4">
+            <div class="winforms-admin-panel">
+                <div class="winforms-admin-header">
+                    <h6 class="mb-0">🔬 ESAMI</h6>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive" style="height: 500px; overflow-y: auto;">
-                        <table class="table table-sm table-hover mb-0">
-                            <thead class="table-light sticky-top">
-                                <tr>
-                                    <th style="width: 8%;">ID</th>
-                                    <th style="width: 15%;">Cod. Min.</th>
-                                    <th style="width: 15%;">Cod. Int.</th>
-                                    <th style="width: 35%;">Descrizione</th>
-                                    <th style="width: 15%;">Parte Corpo</th>
-                                    <th style="width: 12%;">Ambulatori</th>
+
+                <!-- DataGridView Esami (più compatta) -->
+                <div class="winforms-admin-datagrid-container">
+                    <table class="winforms-admin-datagrid small">
+                        <thead>
+                            <tr>
+                                <th style="width: 8%;">ID</th>
+                                <th style="width: 18%;">C.Min</th>
+                                <th style="width: 18%;">C.Int</th>
+                                <th style="width: 35%;">Descrizione</th>
+                                <th style="width: 21%;">Amb.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gridEsami">
+                            @foreach (var esame in Model.Esami)
+                            {
+                                <tr data-id="@esame.Id" class="admin-row-selectable">
+                                    <td class="text-center">@esame.Id</td>
+                                    <td><small>@esame.CodiceMinisteriale</small></td>
+                                    <td><small>@esame.CodiceInterno</small></td>
+                                    <td><small title="@esame.DescrizioneEsame">@(esame.DescrizioneEsame.Length > 25 ? esame.DescrizioneEsame.Substring(0, 25) + "..." : esame.DescrizioneEsame)</small></td>
+                                    <td><small title="@esame.AmbulatoriString">@(esame.AmbulatoriString.Length > 20 ? esame.AmbulatoriString.Substring(0, 20) + "..." : esame.AmbulatoriString)</small></td>
                                 </tr>
-                            </thead>
-                            <tbody id="tabellaEsami">
-                                @foreach (var esame in Model.Esami)
-                                {
-                                    <tr data-id="@esame.Id" class="selectable-row">
-                                        <td class="text-center">@esame.Id</td>
-                                        <td>@esame.CodiceMinisteriale</td>
-                                        <td>@esame.CodiceInterno</td>
-                                        <td>@esame.DescrizioneEsame</td>
-                                        <td>@esame.ParteCorpo</td>
-                                        <td><small>@esame.AmbulatoriString</small></td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                            }
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-footer p-2">
-                    <div class="btn-group w-100">
-                        <button class="btn btn-danger btn-sm fw-bold" id="btnEliminaEsame"
-                                style="font-size: 18px;">
-                            ➖
-                        </button>
-                        <button class="btn btn-success btn-sm fw-bold" id="btnAggiungiEsame"
-                                style="font-size: 18px;">
-                            ➕
-                        </button>
+
+                <!-- Bottoni sotto la griglia -->
+                <div class="winforms-admin-buttons">
+                    <div class="row g-1">
+                        <div class="col-6">
+                            <button id="btnAggiungiEsame" class="btn btn-success btn-sm w-100">
+                                <i class="bi bi-plus"></i> AGGIUNGI
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button id="btnEliminaEsame" class="btn btn-danger btn-sm w-100">
+                                <i class="bi bi-trash"></i> ELIMINA
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -172,202 +182,322 @@
     </div>
 </div>
 
-<!-- ==================== MODAL AMBULATORIO ==================== -->
-<div class="modal fade" id="modalAggiungiAmbulatorio" tabindex="-1" aria-labelledby="modalAggiungiAmbulatorioLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalAggiungiAmbulatorioLabel">🏥 Aggiungi Ambulatorio</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- ==================== MODAL AGGIUNGI AMBULATORIO ==================== -->
+<div class="modal fade" id="modalAggiungiAmbulatorio" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content winforms-modal">
+            <div class="modal-header winforms-modal-header">
+                <h6 class="modal-title"><i class="bi bi-hospital me-2"></i>Aggiungi Ambulatorio</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="nomeAmbulatorio" class="form-label fw-bold">Nome Ambulatorio:</label>
-                    <input type="text" class="form-control form-control-lg" id="nomeAmbulatorio"
-                           maxlength="100" placeholder="Inserisci nome ambulatorio..." required>
+                    <label for="nomeAmbulatorio" class="form-label">Nome Ambulatorio:</label>
+                    <input type="text" class="form-control" id="nomeAmbulatorio" maxlength="100" placeholder="Inserisci nome ambulatorio..." required>
                     <div class="form-text">Massimo 100 caratteri</div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Annulla</button>
-                <button type="button" class="btn btn-primary fw-bold" id="btnSalvaAmbulatorio">💾 Salva</button>
+            <div class="modal-footer winforms-modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary btn-sm" id="btnSalvaAmbulatorio">OK</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ==================== MODAL PARTE DEL CORPO ==================== -->
-<div class="modal fade" id="modalAggiungiParteCorpo" tabindex="-1" aria-labelledby="modalAggiungiParteCorpoLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title" id="modalAggiungiParteCorpoLabel">🫀 Aggiungi Parte del Corpo</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- ==================== MODAL AGGIUNGI PARTE CORPO ==================== -->
+<div class="modal fade" id="modalAggiungiParteCorpo" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content winforms-modal">
+            <div class="modal-header winforms-modal-header">
+                <h6 class="modal-title"><i class="bi bi-heart-pulse me-2"></i>Aggiungi Parte del Corpo</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="nomeParteCorpo" class="form-label fw-bold">Nome Parte del Corpo:</label>
-                    <input type="text" class="form-control form-control-lg" id="nomeParteCorpo"
-                           maxlength="100" placeholder="Inserisci nome parte del corpo..." required>
+                    <label for="nomeParteCorpo" class="form-label">Nome Parte del Corpo:</label>
+                    <input type="text" class="form-control" id="nomeParteCorpo" maxlength="100" placeholder="Inserisci nome parte del corpo..." required>
                     <div class="form-text">Massimo 100 caratteri</div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Annulla</button>
-                <button type="button" class="btn btn-info fw-bold" id="btnSalvaParteCorpo">💾 Salva</button>
+            <div class="modal-footer winforms-modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary btn-sm" id="btnSalvaParteCorpo">OK</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ==================== MODAL ESAME ==================== -->
-<div class="modal fade" id="modalAggiungiEsame" tabindex="-1" aria-labelledby="modalAggiungiEsameLabel" aria-hidden="true">
+<!-- ==================== MODAL AGGIUNGI ESAME ==================== -->
+<div class="modal fade" id="modalAggiungiEsame" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content winforms-modal">
             <form asp-action="AggiungiEsame" method="post">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="modalAggiungiEsameLabel">🔬 Aggiungi Esame</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header winforms-modal-header">
+                    <h6 class="modal-title"><i class="bi bi-clipboard-plus me-2"></i>Aggiungi Esame</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="NuovoEsame.CodiceMinisteriale" class="form-label fw-bold">Codice Ministeriale:</label>
-                                <input asp-for="NuovoEsame.CodiceMinisteriale" class="form-control"
-                                       maxlength="10" placeholder="es. 87.03.1" required>
-                                <span asp-validation-for="NuovoEsame.CodiceMinisteriale" class="text-danger"></span>
+                                <label asp-for="NuovoEsame.CodiceMinisteriale" class="form-label">Codice Ministeriale:</label>
+                                <input asp-for="NuovoEsame.CodiceMinisteriale" class="form-control form-control-sm" maxlength="10" placeholder="es. 87.03.1" required>
+                                <span asp-validation-for="NuovoEsame.CodiceMinisteriale" class="text-danger small"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="NuovoEsame.CodiceInterno" class="form-label fw-bold">Codice Interno:</label>
-                                <input asp-for="NuovoEsame.CodiceInterno" class="form-control"
-                                       maxlength="10" placeholder="es. RX001" required>
-                                <span asp-validation-for="NuovoEsame.CodiceInterno" class="text-danger"></span>
+                                <label asp-for="NuovoEsame.CodiceInterno" class="form-label">Codice Interno:</label>
+                                <input asp-for="NuovoEsame.CodiceInterno" class="form-control form-control-sm" maxlength="10" placeholder="es. RX001" required>
+                                <span asp-validation-for="NuovoEsame.CodiceInterno" class="text-danger small"></span>
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label asp-for="NuovoEsame.DescrizioneEsame" class="form-label fw-bold">Descrizione Esame:</label>
-                        <input asp-for="NuovoEsame.DescrizioneEsame" class="form-control"
-                               maxlength="100" placeholder="es. RX cranio standard" required>
-                        <span asp-validation-for="NuovoEsame.DescrizioneEsame" class="text-danger"></span>
+                        <label asp-for="NuovoEsame.DescrizioneEsame" class="form-label">Descrizione Esame:</label>
+                        <input asp-for="NuovoEsame.DescrizioneEsame" class="form-control form-control-sm" maxlength="100" placeholder="es. RX cranio standard" required>
+                        <span asp-validation-for="NuovoEsame.DescrizioneEsame" class="text-danger small"></span>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="NuovoEsame.ParteCorpo" class="form-label fw-bold">Parte del Corpo:</label>
-                                <select asp-for="NuovoEsame.ParteCorpo" class="form-select" required>
+                                <label asp-for="NuovoEsame.ParteCorpo" class="form-label">Parte del Corpo:</label>
+                                <select asp-for="NuovoEsame.ParteCorpo" class="form-select form-select-sm" required>
                                     <option value="">-- Seleziona una parte --</option>
                                     @foreach (var parte in Model.PartiDelCorpo)
                                     {
                                         <option value="@parte.NomeParte">@parte.NomeParte</option>
                                     }
                                 </select>
-                                <span asp-validation-for="NuovoEsame.ParteCorpo" class="text-danger"></span>
+                                <span asp-validation-for="NuovoEsame.ParteCorpo" class="text-danger small"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Ambulatori associati:</label>
-                                <div class="border rounded p-3" style="height: 150px; overflow-y: auto; background-color: #f8f9fa;">
+                                <label class="form-label">Ambulatori associati:</label>
+                                <div class="winforms-checkbox-container">
                                     @for (int i = 0; i < Model.Ambulatori.Count; i++)
                                     {
-                                        <div class="form-check mb-2">
-                                            <input class="form-check-input" type="checkbox"
-                                                   name="NuovoEsame.AmbulatoriSelezionati"
-                                                   value="@Model.Ambulatori[i].NomeAmbulatorio"
-                                                   id="amb_@i">
-                                            <label class="form-check-label fw-medium" for="amb_@i">
+                                        <div class="form-check form-check-sm">
+                                            <input class="form-check-input" type="checkbox" name="NuovoEsame.AmbulatoriSelezionati" value="@Model.Ambulatori[i].NomeAmbulatorio" id="amb_@i">
+                                            <label class="form-check-label small" for="amb_@i">
                                                 @Model.Ambulatori[i].NomeAmbulatorio
                                             </label>
                                         </div>
                                     }
                                 </div>
-                                <div class="text-danger mt-1" id="ambulatoriError"></div>
+                                <div class="text-danger small mt-1" id="ambulatoriError"></div>
                                 <div class="form-text">Selezionare almeno un ambulatorio</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Annulla</button>
-                    <button type="submit" class="btn btn-success fw-bold">💾 Salva Esame</button>
+                <div class="modal-footer winforms-modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Salva Esame</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- ==================== MODAL MESSAGGI ==================== -->
-<div class="modal fade" id="messaggiModal" tabindex="-1" aria-labelledby="messaggiModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="messaggiModalLabel">💬 Messaggio</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- ==================== MODAL MESSAGGI (come MessageBox) ==================== -->
+<div class="modal fade" id="adminMessageBox" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content winforms-modal">
+            <div class="modal-header winforms-modal-header">
+                <h6 class="modal-title">
+                    <i id="adminMessageIcon" class="bi bi-info-circle me-2"></i>
+                    <span id="adminMessageTitle">Messaggio</span>
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="messaggiModalBody">
-                <!-- Contenuto dinamico -->
+            <div class="modal-body">
+                <p id="adminMessageText" class="mb-0"></p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">✅ OK</button>
+            <div class="modal-footer winforms-modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">OK</button>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="~/js/esami-admin.js"></script>
+    <script src="~/js/esami-admin-winforms.js"></script>
 
     <style>
-        /* Stili specifici per admin */
-        .selectable-row {
-            cursor: pointer;
-            transition: all 0.2s ease;
+        /* ==================== STILI WINFORMS ADMIN ==================== */
+
+        .winforms-admin-panel {
+            border: 2px solid #c0c0c0;
+            border-radius: 0;
+            background-color: #f0f0f0;
+            box-shadow: inset -1px -1px #808080, inset 1px 1px #ffffff;
+            margin-bottom: 10px;
         }
 
-            .selectable-row:hover {
-                background-color: #e3f2fd !important;
-                transform: scale(1.01);
-            }
-
-            .selectable-row.table-active {
-                background-color: #0d6efd !important;
-                color: white !important;
-                font-weight: bold;
-            }
-
-        .card-header h5 {
-            font-size: 18px;
-            margin: 0;
-        }
-
-        .btn-group .btn {
-            font-size: 18px;
+        .winforms-admin-header {
+            background: linear-gradient(to bottom, #e8e8e8, #d0d0d0);
+            border-bottom: 1px solid #a0a0a0;
+            color: #000;
+            font-size: 12px;
+            font-family: "Segoe UI", Tahoma, sans-serif;
             font-weight: bold;
-            min-height: 40px;
-        }
-
-        .table-responsive {
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-        }
-
-        .table th {
-            font-weight: bold;
-            font-size: 13px;
-            color: #495057;
-            background-color: #f8f9fa !important;
-            border-bottom: 2px solid #dee2e6;
+            padding: 6px 8px;
             text-align: center;
         }
 
-        .table td {
-            font-size: 13px;
-            vertical-align: middle;
-            border-bottom: 1px solid #e9ecef;
+        .winforms-admin-datagrid-container {
+            height: 400px;
+            overflow-y: auto;
+            border: 2px inset #f0f0f0;
+            background-color: white;
+            margin: 5px;
+        }
+
+        .winforms-admin-datagrid {
+            width: 100%;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            font-size: 12px;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+            .winforms-admin-datagrid thead th {
+                background: linear-gradient(to bottom, #f8f8f8, #e0e0e0);
+                border: 1px solid #c0c0c0;
+                color: #000;
+                font-size: 11px;
+                font-weight: bold;
+                padding: 4px 6px;
+                text-align: center;
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+            .winforms-admin-datagrid tbody td {
+                border: 1px solid #e0e0e0;
+                padding: 2px 4px;
+                vertical-align: middle;
+                font-size: 11px;
+            }
+
+        .admin-row-selectable {
+            cursor: pointer;
+        }
+
+            .admin-row-selectable:hover {
+                background-color: #e3f2fd !important;
+            }
+
+            .admin-row-selectable.selected {
+                background-color: #316ac5 !important;
+                color: white !important;
+            }
+
+        .winforms-admin-buttons {
+            padding: 5px;
+            background-color: #f0f0f0;
+        }
+
+            .winforms-admin-buttons .btn {
+                font-size: 10px;
+                padding: 4px 6px;
+                border-radius: 2px;
+                font-family: "Segoe UI", Tahoma, sans-serif;
+                font-weight: bold;
+            }
+
+        .winforms-modal {
+            border: 2px solid #c0c0c0;
+            border-radius: 0;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+        }
+
+        .winforms-modal-header {
+            background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+            border-bottom: 1px solid #a0a0a0;
+            color: #000;
+        }
+
+            .winforms-modal-header .modal-title {
+                font-size: 12px;
+                font-weight: bold;
+            }
+
+        .winforms-modal-footer {
+            background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
+            border-top: 1px solid #a0a0a0;
+        }
+
+        .winforms-checkbox-container {
+            border: 2px inset #f0f0f0;
+            background-color: white;
+            max-height: 120px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .form-check-sm {
+            margin-bottom: 4px;
+        }
+
+            .form-check-sm .form-check-input {
+                margin-top: 0.125rem;
+            }
+
+            .form-check-sm .form-check-label {
+                font-size: 11px;
+                margin-left: 4px;
+            }
+
+        /* Scrollbar personalizzate per DataGridView */
+        .winforms-admin-datagrid-container::-webkit-scrollbar {
+            width: 16px;
+        }
+
+        .winforms-admin-datagrid-container::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border: 1px solid #c0c0c0;
+        }
+
+        .winforms-admin-datagrid-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #f0f0f0, #d0d0d0);
+            border: 1px solid #a0a0a0;
+        }
+
+            .winforms-admin-datagrid-container::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(to bottom, #e0e0e0, #c0c0c0);
+            }
+
+        /* Responsive per tablet/mobile */
+        @media (max-width: 768px) {
+            .winforms-admin-datagrid-container
+
+        {
+            height: 300px;
+        }
+
+        .col-md-4 {
+            margin-bottom: 15px;
+        }
+
+        .winforms-admin-datagrid {
+            font-size: 10px;
+        }
+
+            .winforms-admin-datagrid thead th {
+                font-size: 9px;
+                padding: 2px 3px;
+            }
+
+            .winforms-admin-datagrid tbody td {
+                padding: 1px 2px;
+                font-size: 9px;
+            }
+
         }
     </style>
 }

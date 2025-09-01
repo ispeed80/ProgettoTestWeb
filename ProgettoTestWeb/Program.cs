@@ -1,6 +1,13 @@
 using ProgettoTestWeb.Services;
 
-Services.AddScoped<IEsameService>(_ => new EsameService(connectionString));
+var builder = WebApplication.CreateBuilder(args);
+
+// Configurazione della connection string
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+                      "Server=(localdb)\\MSSQLLocalDB;Database=EsamiDB;Trusted_Connection=true;";
+
+// Aggiungi servizi al container
+builder.Services.AddScoped<IEsameService>(_ => new EsameService(connectionString));
 
 // Aggiungi servizi MVC
 builder.Services.AddControllersWithViews();
